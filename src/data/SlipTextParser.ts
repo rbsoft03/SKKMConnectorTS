@@ -23,9 +23,7 @@ export class SlipTextParser {
         return positions;
     }
 
-    /**
-     * Одна строка: префиксы в тексте превращаются в SeparatorLine / Barcode / TextString.
-     */
+    /** Одна строка: префиксы в тексте превращаются в SeparatorLine / Barcode / TextString.*/
     static parseLine(line: string, font?: string, alignment?: string): DocPosition {
         let parsedAlignment = tryParseEnum(PrintAlignment, alignment);
         let parsedFont = tryParseEnum(PrintFont, font);

@@ -31,10 +31,6 @@ import { Payments } from "../dto/Payments.js";
 import { CheckType } from "../dto/enums/CheckType.js";
 import { TaxSystem } from "../dto/enums/TaxSystem.js";
 
-/**
- * Минимальный набор членов, которые Api ожидает от TBase — практически
- * всё, что есть в State/Connection/CheckInput, плюс методы Internals/Requests.
- */
 interface ApiRequirements {
     get(path: string): Promise<void>;
     post(path: string, body?: object): Promise<void>;
@@ -128,7 +124,6 @@ interface ApiRequirements {
 
 export function WithApi<TBase extends Constructor<ApiRequirements>>(Base: TBase) {
     return class extends Base {
-        /** Очистка входных данных перед новым запросом и результаты прошлого вызова. */
         NewRequest(): void {
             this.PaymentType = CheckType.Sale;
             this.TaxVariant = TaxSystem.ОСН;

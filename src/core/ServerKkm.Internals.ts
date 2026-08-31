@@ -21,11 +21,6 @@ function toCompactDateTime(iso: string | undefined): string {
     );
 }
 
-/**
- * Минимальный набор членов, которые Internals ожидает от TBase — то есть
- * то, что реально используется здесь из State/Connection/CheckInput и
- * базового класса (ServerKkm.ts).
- */
 interface InternalsRequirements {
     http: KkmTransport;
     Host: string;

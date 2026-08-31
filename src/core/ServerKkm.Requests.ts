@@ -25,10 +25,6 @@ import { PictureLine } from "../dto/positions/PictureLine.js";
 import { CorrectionData } from "../dto/CorrectionData.js";
 import { Correction105Taxes } from "../dto/Correction105Taxes.js";
 
-/**
- * Минимальный набор членов, которые Requests ожидает от TBase —
- * поля Connection (DeviceName, Cashier) и CheckInput (PaymentType, ...).
- */
 interface RequestsRequirements {
     DeviceName: string;
     Cashier: Cashier | undefined;

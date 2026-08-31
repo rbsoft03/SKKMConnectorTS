@@ -6,19 +6,13 @@ import { WithInternals } from "./ServerKkm.Internals.js";
 import { WithRequests } from "./ServerKkm.Requests.js";
 import { WithApi } from "./ServerKkm.Api.js";
 
-/**
- * Базовый класс — самый нижний уровень цепочки миксинов.
- * Хранит HTTP-транспорт и умеет освобождать соединение.
- */
+/** Хранит HTTP-транспорт и освобождет соединение.*/
 class ServerKkmBase {
     http: KkmTransport = new KkmTransport();
 
     private disposed = false;
 
-    /**
-     * Освобождает HTTP-соединение с сервером ККМ. После этого экземпляр
-     * использовать нельзя — создайте новый, если снова нужен доступ к кассе.
-     */
+    /** Освобождает HTTP-соединение с сервером ККМ.*/
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
