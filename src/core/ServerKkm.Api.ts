@@ -2,7 +2,6 @@ import type { Constructor } from "./Constructor.js";
 import { CheckbaseParameters } from "../data/contracts/CheckbaseParameters.js";
 import { OverallTotals } from "../data/contracts/OverallTotals.js";
 import { LineLengthV2 } from "../data/contracts/LineLengthV2.js";
-import { LastOperationDto } from "../data/contracts/LastOperationDto.js";
 import { CashSum } from "../data/contracts/CashSum.js";
 import { UploadPicture } from "../data/contracts/UploadPicture.js";
 import { RequestKmParameters } from "../data/contracts/RequestKmParameters.js";
@@ -13,6 +12,15 @@ import { Correction120Parameters } from "../data/contracts/Correction120Paramete
 import { Correction105Parameters } from "../data/contracts/Correction105Parameters.js";
 import { DocumentParameters } from "../data/contracts/DocumentParameters.js";
 import { CashdrawParameters } from "../data/contracts/CashdrawParameters.js";
+import {
+    DeviceSettingsRequest,
+    ServiceSettingsRequest,
+    UserProfileRequest,
+    DeviceFontSettingsRequest,
+    CheckTemplateRequest,
+    CheckCopyFnParameters,
+    MarkingCodesRequest,
+} from "../data/contracts/AdminContracts.js";
 
 import { DeviceListResponse } from "../dto/results/DeviceListResponse.js";
 import { DataKkt } from "../dto/results/DataKkt.js";
@@ -30,16 +38,44 @@ import { FiscalResult } from "../dto/results/FiscalResult.js";
 import { Payments } from "../dto/Payments.js";
 import { CheckType } from "../dto/enums/CheckType.js";
 import { TaxSystem } from "../dto/enums/TaxSystem.js";
+import { UserToken } from "../dto/admin/UserToken.js";
+import { ServiceUser } from "../dto/admin/ServiceUser.js";
+import { ServiceSettings } from "../dto/admin/ServiceSettings.js";
+import { DeviceSettings } from "../dto/admin/DeviceSettings.js";
+import { QueueItem, QueueTaskState } from "../dto/queue/QueueModels.js";
+import {
+    DeviceTaskInfo,
+    OperationHistoryItem,
+    OperationKmRow,
+    OperationListItem,
+} from "../dto/operations/OperationModels.js";
+import { PrintTemplate } from "../dto/templates/PrintTemplate.js";
+import { TemplateParameters } from "../dto/templates/TemplateParameters.js";
+import { CheckTemplate } from "../dto/templates/CheckTemplate.js";
+import { CheckTemplateListItem } from "../dto/templates/CheckTemplateListItem.js";
+import { CheckTemplateParameters } from "../dto/templates/CheckTemplateParameters.js";
+import { FiscalizationParameters, FiscalizationDocument } from "../dto/fiscalization/FiscalizationModels.js";
+import { FiscalizationRequest } from "../dto/fiscalization/FiscalizationModels.js";
+import { MarkingVerifyResult } from "../dto/marking/MarkingVerifyModels.js";
 
+/**
+ * Минимальный набор членов, которые Api ожидает от TBase — практически
+ * всё, что есть в State/Connection/CheckInput, плюс методы Internals/Requests.
+ */
 interface ApiRequirements {
-    get(path: string): Promise<void>;
+    get(path: string, useBasicAuth?: boolean): Promise<void>;
     post(path: string, body?: object): Promise<void>;
+    put(path: string, body?: object): Promise<void>;
+    delete(path: string): Promise<void>;
     getDocumentById(path: string): Promise<void>;
     getCheckList(path: string): Promise<void>;
-    getReportList(path: string): Promise<void>;
+    getReportList(path: string, extraQuery?: string): Promise<void>;
     readResult<T>(): T | undefined;
+    readTemplateList(): PrintTemplate[];
+    applyOperation(operation: DeviceTaskInfo | undefined): void;
     readonly deviceQuery: string;
     readonly idQuery: string;
+    readonly docIdQuery: string;
 
     checkBase(): CheckbaseParameters;
     checkBody(): CheckParameters;
@@ -47,8 +83,11 @@ interface ApiRequirements {
     correction105Body(): Correction105Parameters;
     slipBody(): DocumentParameters;
     cashBody(): CashdrawParameters;
+    checkTemplateBody(): CheckTemplateRequest;
+    fillBase(check: CheckbaseParameters): void;
 
     DeviceName: string;
+    Token: string;
     SaleLocation: string;
     PaymentType: number;
     TaxVariant: number;
@@ -93,6 +132,7 @@ interface ApiRequirements {
     FiscalSign: string;
     ShiftNumber: number;
     CheckNumber: number;
+    IsProcessed: boolean;
     Ok: boolean;
     ErrorCode: number;
     ErrorDescription: string;
@@ -108,11 +148,6 @@ interface ApiRequirements {
     LineLength: number;
     LineLengthPixels: number;
     NonZeroSum: number;
-    LastOperationDate: string;
-    LastOperationType: number;
-    LastOperationDocNumber: number;
-    LastOperationShiftNumber: number;
-    LastOperationSum: number;
     MarkingCheck: RequestKmResult | undefined;
     MarkingProcessing: ProcessingKmResult | undefined;
     Check: CheckDocument | undefined;
@@ -120,12 +155,55 @@ interface ApiRequirements {
     TaskStatus: ResponseTaskStatus | undefined;
     PrintForm: PrintFormLine[];
     Shifts: ShiftListItem[];
+
+    // Новые входные поля подключения (AuthUserName и т.д. — ServerKkm.Connection.ts)
+    AuthUserName: string;
+    AuthPassword: string;
+    PoolName: string;
+    ReportType: number;
+    QueueTaskId: string;
+    PictureId: string;
+    TemplateName: string;
+    UserId: string;
+    FnNumber: string;
+    MarkingCodes: string[];
+    DeviceSettings: DeviceSettings | undefined;
+    ServiceSettings: ServiceSettings | undefined;
+    ServiceUser: ServiceUser | undefined;
+    TemplateParameters: TemplateParameters | undefined;
+    CheckTemplateParameters: CheckTemplateParameters | undefined;
+    FiscalizationParameters: FiscalizationParameters | undefined;
+
+    // Новые поля результатов (ServerKkm.State.ts)
+    ServerVersion: string;
+    UserToken: UserToken | undefined;
+    Users: ServiceUser[];
+    ServiceSettingsResult: ServiceSettings | undefined;
+    Pools: string[];
+    Queue: QueueItem[];
+    QueueTask: QueueTaskState | undefined;
+    Operation: DeviceTaskInfo | undefined;
+    OperationHistory: OperationHistoryItem[];
+    OperationTlv: string;
+    OperationKm: OperationKmRow[];
+    RelatedOperations: DeviceTaskInfo[];
+    Operations: OperationListItem[];
+    PrintTemplate: PrintTemplate | undefined;
+    Templates: PrintTemplate[];
+    CheckTemplate: CheckTemplate | undefined;
+    CheckTemplates: CheckTemplateListItem[];
+    FiscalizationDocument: FiscalizationDocument | undefined;
+    Fiscalizations: FiscalizationDocument[];
+    MarkingVerify: MarkingVerifyResult | undefined;
+    PictureBase64Result: string;
 }
 
 export function WithApi<TBase extends Constructor<ApiRequirements>>(Base: TBase) {
     return class extends Base {
+        /** Очистка входных данных перед новым запросом и результаты прошлого вызова. */
         NewRequest(): void {
             this.PaymentType = CheckType.Sale;
+            this.IsProcessed = false;
             this.TaxVariant = TaxSystem.ОСН;
             this.Electronically = false;
             this.OperationOnline = false;
@@ -172,11 +250,6 @@ export function WithApi<TBase extends Constructor<ApiRequirements>>(Base: TBase)
             this.FiscalSign = "";
             this.ShiftNumber = 0;
             this.CheckNumber = 0;
-            this.LastOperationDate = "";
-            this.LastOperationType = 0;
-            this.LastOperationDocNumber = 0;
-            this.LastOperationShiftNumber = 0;
-            this.LastOperationSum = 0;
             this.ShiftTotals = undefined;
             this.NonZeroSum = 0;
             this.Ok = false;
@@ -293,18 +366,6 @@ export function WithApi<TBase extends Constructor<ApiRequirements>>(Base: TBase)
             this.LineLengthPixels = length.LineLengthPixels;
         }
 
-        /** Получение последней операции из базы сервера. */
-        async GetLastOperation(): Promise<void> {
-            await this.get("operation/last");
-            const operation = this.readResult<LastOperationDto>();
-            if (operation === undefined) return;
-            this.LastOperationDate = operation.Date;
-            this.LastOperationType = operation.TaskType;
-            this.LastOperationDocNumber = operation.DocNumber;
-            this.LastOperationShiftNumber = operation.ShiftNumber;
-            this.LastOperationSum = operation.Sum;
-        }
-
         /** Получение счётчиков за смену. */
         async GetTotals(): Promise<void> {
             await this.get(`kkt/counters/shift?${this.deviceQuery}`);
@@ -313,7 +374,8 @@ export function WithApi<TBase extends Constructor<ApiRequirements>>(Base: TBase)
 
         /** Получение списка Z-отчётов за период. */
         async GetShiftList(): Promise<void> {
-            await this.getReportList("shift/z/list");
+            const extra = this.ReportType > 0 ? `reportType=${this.ReportType}` : undefined;
+            await this.getReportList("shift/z/list", extra);
         }
 
         /** Получение списка открытий смен за период. */
@@ -553,6 +615,444 @@ export function WithApi<TBase extends Constructor<ApiRequirements>>(Base: TBase)
         /** Асинхронно поставить нефискальный документ в очередь печати. */
         async PrintSlipAsync(): Promise<void> {
             await this.post("slip/async", this.slipBody());
+        }
+
+        // ===== Админ-API =====
+
+        /** Версия сервера ККМ. */
+        async GetVersion(): Promise<void> {
+            await this.get("version");
+            if (typeof this.LastResult === "string") {
+                this.ServerVersion = this.LastResult;
+            } else if (this.LastResult !== undefined) {
+                this.ServerVersion = String(this.LastResult);
+            }
+        }
+
+        /**
+         * Получение токена авторизации по логину и паролю.
+         * Нужны AuthUserName и AuthPassword (по умолчанию Admin / Admin).
+         */
+        async GetUserToken(): Promise<void> {
+            if (!this.AuthUserName?.trim() || !this.AuthPassword?.trim()) {
+                this.Ok = false;
+                this.ErrorCode = -1;
+                this.ErrorDescription = "Укажите AuthUserName и AuthPassword для получения токена.";
+                return;
+            }
+
+            await this.get("user/token", true);
+            this.UserToken = this.readResult<UserToken>();
+            if (this.UserToken?.tokenId) {
+                this.Token = this.UserToken.tokenId;
+            }
+        }
+
+        /** Список пользователей сервера ККМ. */
+        async GetUserList(): Promise<void> {
+            await this.get("user/list");
+            this.Users = this.readResult<ServiceUser[]>() ?? [];
+        }
+
+        /** Добавление пользователя. */
+        async AddUser(): Promise<void> {
+            const body = new UserProfileRequest();
+            if (this.ServiceUser !== undefined) body.User = this.ServiceUser;
+            await this.post("user", body);
+        }
+
+        /** Изменение пользователя. */
+        async UpdateUser(): Promise<void> {
+            await this.put(`user?id=${encodeURIComponent(this.UserId)}`, this.ServiceUser);
+        }
+
+        /** Удаление пользователя. */
+        async DeleteUser(): Promise<void> {
+            await this.delete(`user?id=${encodeURIComponent(this.UserId)}`);
+        }
+
+        /** Получение настроек службы печати. */
+        async GetServiceSettings(): Promise<void> {
+            await this.get("service/settings");
+            this.ServiceSettingsResult = this.readResult<ServiceSettings>();
+        }
+
+        /** Сохранение настроек службы печати. */
+        async SaveServiceSettings(): Promise<void> {
+            const body = new ServiceSettingsRequest();
+            if (this.ServiceSettings !== undefined) body.ServiceSettings = this.ServiceSettings;
+            await this.post("service/settings", body);
+        }
+
+        /** Добавление кассы на сервер. */
+        async AddDevice(): Promise<void> {
+            const settings = this.DeviceSettings ?? new DeviceSettings();
+            if (!settings.DeviceName?.trim()) settings.DeviceName = this.DeviceName;
+            const body = new DeviceSettingsRequest();
+            body.DeviceName = settings.DeviceName;
+            body.Settings = settings;
+            await this.post("kkt", body);
+        }
+
+        /** Изменение настроек кассы. */
+        async UpdateDevice(): Promise<void> {
+            const settings = this.DeviceSettings ?? new DeviceSettings();
+            if (!settings.DeviceName?.trim()) settings.DeviceName = this.DeviceName;
+            const body = new DeviceSettingsRequest();
+            body.DeviceName = settings.DeviceName;
+            body.Settings = settings;
+            await this.put("kkt", body);
+        }
+
+        /** Удаление кассы с сервера. */
+        async DeleteDevice(): Promise<void> {
+            await this.delete(`kkt?device=${encodeURIComponent(this.DeviceName)}`);
+        }
+
+        /** Перезагрузка кассы. */
+        async RebootDevice(): Promise<void> {
+            await this.post("kkt/reboot", this.checkBase());
+        }
+
+        /** Настройка шрифтов шаблона кассы. */
+        async SetDeviceFont(): Promise<void> {
+            const settings = this.DeviceSettings;
+            const body = new DeviceFontSettingsRequest();
+            body.DeviceName = this.DeviceName;
+            if (settings?.TemplateSettingH1) body.TemplateSettingH1 = settings.TemplateSettingH1;
+            if (settings?.TemplateSettingH2) body.TemplateSettingH2 = settings.TemplateSettingH2;
+            if (settings?.TemplateSettingH3) body.TemplateSettingH3 = settings.TemplateSettingH3;
+            if (settings?.TemplateSettingH4) body.TemplateSettingH4 = settings.TemplateSettingH4;
+            if (settings?.TemplateSettingH5) body.TemplateSettingH5 = settings.TemplateSettingH5;
+            await this.post("kkt/font/setting", body);
+        }
+
+        /** Список пулов устройств. */
+        async GetPoolList(): Promise<void> {
+            await this.get("pool/list");
+            this.Pools = this.readResult<string[]>() ?? [];
+        }
+
+        /** Список касс в пуле. */
+        async GetDeviceListByPool(): Promise<void> {
+            await this.get(`kkt/list/byPool?pool=${encodeURIComponent(this.PoolName)}`);
+            this.Devices = this.readResult<DeviceListResponse[]>() ?? [];
+        }
+
+        // ===== Асинхронные операции со сменой =====
+
+        /** Асинхронное открытие смены. */
+        async OpenShiftAsync(): Promise<void> {
+            await this.post("shift/open/async", this.checkBase());
+        }
+
+        /** Асинхронное закрытие смены. */
+        async CloseShiftAsync(): Promise<void> {
+            await this.post("shift/z/async", this.checkBase());
+        }
+
+        /** Асинхронный X-отчёт. */
+        async ReportXAsync(): Promise<void> {
+            await this.post("shift/x/async", this.checkBase());
+        }
+
+        /** Асинхронный отчёт о состоянии расчётов. */
+        async ReportSettlementAsync(): Promise<void> {
+            await this.post("report/settlement/async", this.checkBase());
+        }
+
+        /** Асинхронное внесение наличных. */
+        async CashInAsync(): Promise<void> {
+            await this.post("cashin/async", this.cashBody());
+        }
+
+        /** Асинхронная выемка наличных. */
+        async CashOutAsync(): Promise<void> {
+            await this.post("cashout/async", this.cashBody());
+        }
+
+        // ===== Чеки, слипы, картинки =====
+
+        /** Список чеков за период или смену. */
+        async GetCheckList(): Promise<void> {
+            let query = `${this.deviceQuery}&from=${this.ShiftsFrom}&to=${this.ShiftsTo}`;
+            if (this.ShiftNumber > 0) {
+                query += `&shift=${this.ShiftNumber}`;
+            }
+            await this.get(`check/list?${query}`);
+            this.Checks = this.readResult<CheckDocument[]>() ?? [];
+        }
+
+        /** Печать копии чека по данным фискального накопителя. */
+        async PrintCheckCopyFn(): Promise<void> {
+            const body = new CheckCopyFnParameters();
+            body.DeviceName = this.DeviceName;
+            body.FnNumber = this.FnNumber;
+            body.FiscalSign = this.FiscalSign;
+            body.DocNumber = this.CheckNumber;
+            await this.post("check/copy/fn", body);
+        }
+
+        /** Получение слипа по идентификатору документа. */
+        async GetSlip(): Promise<void> {
+            await this.getDocumentById("slip");
+        }
+
+        /** Список слипов по кассе. */
+        async GetSlipList(): Promise<void> {
+            await this.getCheckList("slip/list");
+        }
+
+        /** Получение картинки по имени. */
+        async GetPicture(): Promise<void> {
+            await this.get(`picture?${this.deviceQuery}&id=${encodeURIComponent(this.PictureId)}`);
+            if (this.Ok && typeof this.LastResult === "string") {
+                this.PictureBase64Result = this.LastResult;
+            }
+        }
+
+        /** Удаление картинки. */
+        async DeletePicture(): Promise<void> {
+            await this.delete(`picture?${this.deviceQuery}&id=${encodeURIComponent(this.PictureId)}`);
+        }
+
+        // ===== Шаблоны печати и чека =====
+
+        /** Создание шаблона печати. */
+        async AddTemplate(): Promise<void> {
+            await this.post("template", this.TemplateParameters);
+        }
+
+        /** Изменение шаблона печати. */
+        async UpdateTemplate(): Promise<void> {
+            await this.put("template", this.TemplateParameters);
+        }
+
+        /** Удаление шаблона печати. */
+        async DeleteTemplate(): Promise<void> {
+            await this.delete(`template?id=${encodeURIComponent(this.TemplateName)}`);
+        }
+
+        /** Список шаблонов печати. */
+        async GetTemplateList(): Promise<void> {
+            await this.get("template/list");
+            this.Templates = this.readTemplateList();
+        }
+
+        /** Получение шаблона печати по имени. */
+        async GetTemplate(): Promise<void> {
+            await this.get(`template?name=${encodeURIComponent(this.TemplateName)}`);
+            this.PrintTemplate = this.readResult<PrintTemplate>();
+        }
+
+        /** Создание шаблона чека. */
+        async AddCheckTemplate(): Promise<void> {
+            await this.post("checkTemplate", this.checkTemplateBody());
+        }
+
+        /** Изменение шаблона чека. */
+        async UpdateCheckTemplate(): Promise<void> {
+            await this.put("checkTemplate", this.checkTemplateBody());
+        }
+
+        /** Удаление шаблона чека. */
+        async DeleteCheckTemplate(): Promise<void> {
+            await this.delete(`checkTemplate?id=${encodeURIComponent(this.TemplateName)}`);
+        }
+
+        /** Список шаблонов чека. */
+        async GetCheckTemplateList(): Promise<void> {
+            await this.get("checkTemplate/list");
+            this.CheckTemplates = this.readResult<CheckTemplateListItem[]>() ?? [];
+        }
+
+        /** Получение шаблона чека по имени. */
+        async GetCheckTemplate(): Promise<void> {
+            await this.get(`checkTemplate?id=${encodeURIComponent(this.TemplateName)}`);
+            this.CheckTemplate = this.readResult<CheckTemplate>();
+        }
+
+        // ===== Очередь печати =====
+
+        /** Состояние очереди печати. */
+        async GetQueue(): Promise<void> {
+            await this.get("queue");
+            this.Queue = this.readResult<QueueItem[]>() ?? [];
+        }
+
+        /** Состояние задания в очереди. */
+        async GetQueueTask(): Promise<void> {
+            await this.get(`queue/task?taskId=${encodeURIComponent(this.QueueTaskId)}`);
+            this.QueueTask = this.readResult<QueueTaskState>();
+        }
+
+        /** История обработки задания в очереди. */
+        async GetQueueTaskHistory(): Promise<void> {
+            await this.get(`queue/task/history?taskId=${encodeURIComponent(this.QueueTaskId)}`);
+            this.QueueTask = this.readResult<QueueTaskState>();
+            if (this.QueueTask) {
+                this.OperationHistory = this.QueueTask.History.map((h) => {
+                    const item = new OperationHistoryItem();
+                    item.Time = h.Time;
+                    item.State = h.State;
+                    item.Description = h.Description;
+                    return item;
+                });
+            }
+        }
+
+        /** Отмена задания в очереди. */
+        async CancelQueueTask(): Promise<void> {
+            await this.delete(`queue/task?taskId=${encodeURIComponent(this.QueueTaskId)}`);
+        }
+
+        // ===== Маркировка (проверка кодов) =====
+
+        /** Проверка кода маркировки через внешний сервис. */
+        async VerifyMarking(): Promise<void> {
+            const body = new MarkingCodesRequest();
+            body.DeviceName = this.DeviceName;
+            body.Codes = [...this.MarkingCodes];
+            await this.post("marking/km/verify", body);
+            this.MarkingVerify = this.readResult<MarkingVerifyResult>();
+        }
+
+        /** Проверка кода маркировки через ТС ПИоТ. */
+        async VerifyMarkingTsPiot(): Promise<void> {
+            const body = new MarkingCodesRequest();
+            body.DeviceName = this.DeviceName;
+            body.Codes = [...this.MarkingCodes];
+            await this.post("marking/km/tspiot/verify", body);
+            this.MarkingVerify = this.readResult<MarkingVerifyResult>();
+        }
+
+        /** Проверка кода маркировки через ЛМ ЧЗ. */
+        async VerifyMarkingLmcz(): Promise<void> {
+            const body = new MarkingCodesRequest();
+            body.DeviceName = this.DeviceName;
+            body.Codes = [...this.MarkingCodes];
+            await this.post("marking/km/lmcz/verify", body);
+            this.MarkingVerify = this.readResult<MarkingVerifyResult>();
+        }
+
+        // ===== Фискализация кассы =====
+
+        fiscalizationBody(): FiscalizationRequest {
+            const source = this.FiscalizationParameters;
+            const body = new FiscalizationRequest();
+            this.fillBase(body);
+            if (source === undefined) return body;
+
+            if (source.RnNumber) body.RnNumber = source.RnNumber;
+            if (source.TaxationSystems) body.TaxationSystems = source.TaxationSystems;
+            if (source.Vatin) body.Vatin = source.Vatin;
+            if (source.CompanyName) body.CompanyName = source.CompanyName;
+            if (source.Fn) body.Fn = source.Fn;
+            if (source.FfdVersionKkt) body.FfdVersionKkt = source.FfdVersionKkt;
+            if (source.FfdVersionFn) body.FfdVersionFn = source.FfdVersionFn;
+            if (source.RegistrationLabelCodes) body.RegistrationLabelCodes = source.RegistrationLabelCodes;
+            if (source.OfdAddress) body.OfdAddress = source.OfdAddress;
+            if (source.OfdPort) body.OfdPort = source.OfdPort;
+            if (source.AutomaticNumber) body.AutomaticNumber = source.AutomaticNumber;
+            if (source.SenderEmail) body.SenderEmail = source.SenderEmail;
+            if (source.ReasonCode) body.ReasonCode = source.ReasonCode;
+            if (source.IsmHost) body.IsmHost = source.IsmHost;
+            if (source.IsmPort) body.IsmPort = source.IsmPort;
+            if (source.FnsUrl) body.FnsUrl = source.FnsUrl;
+            if (source.OfdVatin) body.OfdVatin = source.OfdVatin;
+            if (source.OfdName) body.OfdName = source.OfdName;
+            if (source.AgentTypes) body.AgentTypes = source.AgentTypes;
+            body.IsBsoSign = source.IsBsoSign;
+            body.IsMarking = source.IsMarking;
+            body.IsPawnshop = source.IsPawnshop;
+            body.IsAssurance = source.IsAssurance;
+            body.IsAutomatic = source.IsAutomatic;
+            body.IsVending = source.IsVending;
+            body.IsAutomaticPrinter = source.IsAutomaticPrinter;
+            body.IsOnline = source.IsOnline;
+            body.IsLottery = source.IsLottery;
+            body.IsGambling = source.IsGambling;
+            body.IsExcisable = source.IsExcisable;
+            body.IsService = source.IsService;
+            body.IsEncrypted = source.IsEncrypted;
+            body.IsOffline = source.IsOffline;
+            body.IsCateringServices = source.IsCateringServices;
+            body.IsWholesaleTrade = source.IsWholesaleTrade;
+            if (source.SaleAddress) body.SaleAddress = source.SaleAddress;
+            if (source.SaleLocation) body.SaleLocation = source.SaleLocation;
+            return body;
+        }
+
+        /** Фискализация кассы. */
+        async Fiscalization(): Promise<void> {
+            await this.post("fiscalization", this.fiscalizationBody());
+        }
+
+        /** Асинхронная фискализация кассы. */
+        async FiscalizationAsync(): Promise<void> {
+            await this.post("fiscalization/async", this.fiscalizationBody());
+        }
+
+        /** Результат фискализации по идентификатору документа. */
+        async GetFiscalization(): Promise<void> {
+            await this.getDocumentById("fiscalization");
+            this.FiscalizationDocument = this.readResult<FiscalizationDocument>();
+        }
+
+        /** Список операций фискализации по кассе. */
+        async GetFiscalizationList(): Promise<void> {
+            await this.get(`fiscalization/list?${this.deviceQuery}`);
+            this.Fiscalizations = this.readResult<FiscalizationDocument[]>() ?? [];
+        }
+
+        // ===== Операции (новая модель, заменяет старый GetLastOperation) =====
+
+        /**
+         * Последняя операция из базы. tasktype — PaymentType (CheckType),
+         * isProcessed — IsProcessed.
+         */
+        async GetOperationLast(): Promise<void> {
+            const processed = this.IsProcessed ? "true" : "false";
+            await this.get(`operation/last?tasktype=${this.PaymentType}&isProcessed=${processed}`);
+            this.applyOperation(this.readResult<DeviceTaskInfo>());
+        }
+
+        /** Операция по идентификатору документа. */
+        async GetOperation(): Promise<void> {
+            await this.get(`operation?${this.docIdQuery}`);
+            this.applyOperation(this.readResult<DeviceTaskInfo>());
+        }
+
+        /** История операции по идентификатору документа. */
+        async GetOperationHistory(): Promise<void> {
+            await this.get(`operation/history?${this.docIdQuery}`);
+            this.OperationHistory = this.readResult<OperationHistoryItem[]>() ?? [];
+        }
+
+        /** TLV-данные операции. */
+        async GetOperationTlv(): Promise<void> {
+            await this.get(`operation/tlv?${this.docIdQuery}`);
+            if (this.Ok && typeof this.LastResult === "string") {
+                this.OperationTlv = this.LastResult;
+            }
+        }
+
+        /** Данные маркировки операции. */
+        async GetOperationKm(): Promise<void> {
+            await this.get(`operation/km?${this.docIdQuery}`);
+            this.OperationKm = this.readResult<OperationKmRow[]>() ?? [];
+        }
+
+        /** Связанные операции. */
+        async GetOperationRelated(): Promise<void> {
+            await this.get(`operation/related?${this.docIdQuery}`);
+            this.RelatedOperations = this.readResult<DeviceTaskInfo[]>() ?? [];
+        }
+
+        /** Список операций за период. */
+        async GetOperationList(): Promise<void> {
+            await this.get(`operation/list?from=${this.ShiftsFrom}&to=${this.ShiftsTo}`);
+            this.Operations = this.readResult<OperationListItem[]>() ?? [];
         }
     };
 }

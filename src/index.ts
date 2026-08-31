@@ -1,5 +1,4 @@
 ﻿export { ServerKkm } from "./core/ServerKkm.js";
-
 export { Cashier } from "./dto/Cashier.js";
 export { Correction105Taxes } from "./dto/Correction105Taxes.js";
 export { CorrectionData } from "./dto/CorrectionData.js";
@@ -8,6 +7,11 @@ export { ElectronicPayment } from "./dto/ElectronicPayment.js";
 export { OperationalAttribute } from "./dto/OperationalAttribute.js";
 export { Payments } from "./dto/Payments.js";
 export { UserAttribute } from "./dto/UserAttribute.js";
+export { DeviceSettings } from "./dto/admin/DeviceSettings.js";
+export { ProxyConfig } from "./dto/admin/ProxyConfig.js";
+export { ServiceSettings } from "./dto/admin/ServiceSettings.js";
+export { ServiceUser } from "./dto/admin/ServiceUser.js";
+export { UserToken } from "./dto/admin/UserToken.js";
 export { BarcodeType } from "./dto/enums/BarcodeType.js";
 export { CheckType } from "./dto/enums/CheckType.js";
 export { CorrectionTypes } from "./dto/enums/CorrectionTypes.js";
@@ -17,6 +21,16 @@ export { PrintAlignment } from "./dto/enums/PrintAlignment.js";
 export { PrintFont } from "./dto/enums/PrintFont.js";
 export { ShiftState } from "./dto/enums/ShiftState.js";
 export { TaxSystem } from "./dto/enums/TaxSystem.js";
+export { FiscalizationParameters, FiscalizationDocument } from "./dto/fiscalization/FiscalizationModels.js";
+export { MarkingVerifyResult, CodeMarkInfo } from "./dto/marking/MarkingVerifyModels.js";
+export {
+    OperationListItem,
+    OperationHistoryItem,
+    DeviceTaskInfo,
+    SenderInfo,
+    OperationKmRow,
+} from "./dto/operations/OperationModels.js";
+export { QueueItem, QueueTaskState, DocumentHistoryItem } from "./dto/queue/QueueModels.js";
 export { Agent } from "./dto/positions/Agent.js";
 export { BarcodeLine } from "./dto/positions/BarcodeLine.js";
 export { FiscalLine } from "./dto/positions/FiscalLine.js";
@@ -61,3 +75,11 @@ export { ShiftCounters } from "./dto/results/ShiftCounters.js";
 export { ShiftIncome } from "./dto/results/ShiftIncome.js";
 export { ShiftListItem } from "./dto/results/ShiftListItem.js";
 export { Warnings } from "./dto/results/Warnings.js";
+export { PrintLine } from "./dto/templates/PrintLine.js";
+export { TemplateItem } from "./dto/templates/TemplateItem.js";
+export { PrintTemplate } from "./dto/templates/PrintTemplate.js";
+export { TemplateParameters } from "./dto/templates/TemplateParameters.js";
+export { CheckTemplateListItem } from "./dto/templates/CheckTemplateListItem.js";
+export { CheckTemplateDocument } from "./dto/templates/CheckTemplateDocument.js";
+export { CheckTemplate } from "./dto/templates/CheckTemplate.js";
+export { CheckTemplateParameters } from "./dto/templates/CheckTemplateParameters.js";

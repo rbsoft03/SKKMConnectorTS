@@ -1,5 +1,11 @@
 import type { Constructor } from "./Constructor.js";
 import { Cashier } from "../dto/Cashier.js";
+import { DeviceSettings } from "../dto/admin/DeviceSettings.js";
+import { ServiceSettings } from "../dto/admin/ServiceSettings.js";
+import { ServiceUser } from "../dto/admin/ServiceUser.js";
+import { TemplateParameters } from "../dto/templates/TemplateParameters.js";
+import { CheckTemplateParameters } from "../dto/templates/CheckTemplateParameters.js";
+import { FiscalizationParameters } from "../dto/fiscalization/FiscalizationModels.js";
 
 /**Параметры подключения к серверу ККМ и данные кассира.*/
 export function WithConnection<TBase extends Constructor>(Base: TBase) {
@@ -27,5 +33,53 @@ export function WithConnection<TBase extends Constructor>(Base: TBase) {
 
         /** Сведения о кассире (продавце). */
         Cashier: Cashier | undefined = undefined;
+
+        /** Логин для Basic Auth при получении токена. По умолчанию Admin. */
+        AuthUserName = "Admin";
+
+        /** Пароль для Basic Auth при получении токена. По умолчанию Admin. */
+        AuthPassword = "Admin";
+
+        /** Имя пула устройств. */
+        PoolName = "";
+
+        /** Тип отчёта для списка Z-отчётов. */
+        ReportType = 0;
+
+        /** Идентификатор задания в очереди печати. */
+        QueueTaskId = "";
+
+        /** Имя картинки или шаблона. */
+        PictureId = "";
+
+        /** Имя шаблона печати или чека. */
+        TemplateName = "";
+
+        /** Идентификатор пользователя сервера ККМ. */
+        UserId = "";
+
+        /** Номер ФН для печати копии чека по данным ФН. */
+        FnNumber = "";
+
+        /** Коды маркировки для проверки. */
+        MarkingCodes: string[] = [];
+
+        /** Настройки кассы для добавления или изменения. */
+        DeviceSettings: DeviceSettings | undefined = undefined;
+
+        /** Настройки службы печати. */
+        ServiceSettings: ServiceSettings | undefined = undefined;
+
+        /** Пользователь сервера ККМ. */
+        ServiceUser: ServiceUser | undefined = undefined;
+
+        /** Параметры шаблона печати. */
+        TemplateParameters: TemplateParameters | undefined = undefined;
+
+        /** Параметры шаблона чека. */
+        CheckTemplateParameters: CheckTemplateParameters | undefined = undefined;
+
+        /** Параметры фискализации. */
+        FiscalizationParameters: FiscalizationParameters | undefined = undefined;
     };
 }

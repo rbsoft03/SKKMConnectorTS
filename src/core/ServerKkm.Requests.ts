@@ -6,6 +6,7 @@ import { Correction105Parameters } from "../data/contracts/Correction105Paramete
 import { DocumentParameters } from "../data/contracts/DocumentParameters.js";
 import { CashdrawParameters } from "../data/contracts/CashdrawParameters.js";
 import { ApiPosition } from "../data/contracts/ApiPosition.js";
+import { CheckTemplateRequest, CheckTemplateDocumentRequest } from "../data/contracts/AdminContracts.js";
 import { SlipTextParser } from "../data/SlipTextParser.js";
 import { Cashier } from "../dto/Cashier.js";
 import { Customer } from "../dto/Customer.js";
@@ -24,10 +25,12 @@ import { SeparatorLine } from "../dto/positions/SeparatorLine.js";
 import { PictureLine } from "../dto/positions/PictureLine.js";
 import { CorrectionData } from "../dto/CorrectionData.js";
 import { Correction105Taxes } from "../dto/Correction105Taxes.js";
+import { CheckTemplateParameters } from "../dto/templates/CheckTemplateParameters.js";
 
 interface RequestsRequirements {
     DeviceName: string;
     Cashier: Cashier | undefined;
+
     PaymentType: number;
     TaxVariant: number;
     Customer: Customer | undefined;
@@ -49,13 +52,15 @@ interface RequestsRequirements {
     TimeZone: number | undefined;
     OperationOnline: boolean;
     AdditionalAttribute: string;
+
     CorrectionData: CorrectionData | undefined;
     Correction105Taxes: Correction105Taxes | undefined;
+    CheckTemplateParameters: CheckTemplateParameters | undefined;
+
     TextForPrint: string;
     CashAmount: number;
 }
 
-/**Одна позиция чека (Dto/Positions) в модель запроса (ApiPosition) по её типу.*/
 function toApi(position: Position): ApiPosition {
     if (position instanceof FiscalLine) {
         const api = new ApiPosition();
@@ -86,7 +91,6 @@ function toApi(position: Position): ApiPosition {
     );
 }
 
-/** Текст с префиксом стиля линии ([dotted], [line], [line,dashed]) уходит как SeparatorLine.*/
 function textToApi(text: TextLine): ApiPosition {
     const parsed = SlipTextParser.parseLine(text.Text, text.Font, text.Alignment);
     const api = new ApiPosition();
@@ -97,29 +101,35 @@ function textToApi(text: TextLine): ApiPosition {
     return api;
 }
 
+/**
+ * Список позиций (любой, не только текущего чека) в модель запроса.
+ * Аналог статического ToApiPositions(IEnumerable<Position>?) в C# —
+ * вынесен отдельно, чтобы переиспользовать в checkTemplateBody().
+ */
+function toApiPositions(positions: Position[] | undefined): ApiPosition[] {
+    if (!positions) return [];
+    return positions.map((position) => toApi(position));
+}
+
 export function WithRequests<TBase extends Constructor<RequestsRequirements>>(Base: TBase) {
     return class extends Base {
-        /** Касса и кассир. */
         fillBase(check: CheckbaseParameters): void {
             check.DeviceName = this.DeviceName;
             if (this.Cashier !== undefined) check.Cashier = this.Cashier;
         }
 
-        /** Смена, X/Z-отчёт, отчёт о расчётах, денежный ящик. */
         checkBase(): CheckbaseParameters {
             const check = new CheckbaseParameters();
             this.fillBase(check);
             return check;
         }
 
-        /** Обычный чек. */
         checkBody(): CheckParameters {
             const check = new CheckParameters();
             this.fillCheck(check);
             return check;
         }
 
-        /** Чек коррекции ФФД 1.2. */
         correction120Body(): Correction120Parameters {
             const check = new Correction120Parameters();
             if (this.CorrectionData !== undefined) check.CorrectionData = this.CorrectionData;
@@ -127,7 +137,6 @@ export function WithRequests<TBase extends Constructor<RequestsRequirements>>(Ba
             return check;
         }
 
-        /** Заполнение полей чека. */
         fillCheck(check: CheckParameters): void {
             this.fillBase(check);
             check.PaymentType = this.PaymentType;
@@ -157,7 +166,6 @@ export function WithRequests<TBase extends Constructor<RequestsRequirements>>(Ba
             check.AdditionalAttribute = this.AdditionalAttribute;
         }
 
-        /** Чек коррекции ФФД 1.05. */
         correction105Body(): Correction105Parameters {
             const taxes = this.Correction105Taxes;
             const check = new Correction105Parameters();
@@ -184,7 +192,6 @@ export function WithRequests<TBase extends Constructor<RequestsRequirements>>(Ba
             return check;
         }
 
-        /** Слип. */
         slipBody(): DocumentParameters {
             const check = new DocumentParameters();
             check.Positions = SlipTextParser.parse(this.TextForPrint);
@@ -192,7 +199,6 @@ export function WithRequests<TBase extends Constructor<RequestsRequirements>>(Ba
             return check;
         }
 
-        /** Внесение / выемка. */
         cashBody(): CashdrawParameters {
             const check = new CashdrawParameters();
             check.Sum = this.CashAmount;
@@ -200,9 +206,47 @@ export function WithRequests<TBase extends Constructor<RequestsRequirements>>(Ba
             return check;
         }
 
-        /** Позиции чека в модель запроса. */
         buildPositions(): ApiPosition[] {
-            return this.Positions.map((position) => toApi(position));
+            return toApiPositions(this.Positions);
+        }
+
+        /** Тело POST/PUT checkTemplate: позиции в обёртке FiscalString, как у печати чека. */
+        checkTemplateBody(): CheckTemplateRequest {
+            const source = this.CheckTemplateParameters ?? new CheckTemplateParameters();
+            const document = source.Document;
+
+            const request = new CheckTemplateRequest();
+            request.Name = source.Name;
+
+            if (document !== undefined) {
+                const docRequest = new CheckTemplateDocumentRequest();
+                docRequest.PaymentType = document.PaymentType;
+                docRequest.TaxVariant = document.TaxVariant;
+                if (document.Customer !== undefined) docRequest.Customer = document.Customer;
+                if (document.SenderEmail) docRequest.SenderEmail = document.SenderEmail;
+                if (document.SaleAddress) docRequest.SaleAddress = document.SaleAddress;
+                if (document.SaleLocation) docRequest.SaleLocation = document.SaleLocation;
+                docRequest.Positions = toApiPositions(
+                    document.Positions.length > 0 ? document.Positions : this.Positions
+                );
+                if (document.Payments !== undefined) docRequest.Payments = document.Payments;
+                if (document.ElectronicPayments.length > 0) {
+                    docRequest.ElectronicPaymentInfo = document.ElectronicPayments;
+                }
+                docRequest.Electronically = document.Electronically;
+                if (document.OperationalAttribute !== undefined) {
+                    docRequest.OperationalAttribute = document.OperationalAttribute;
+                }
+                if (document.IndustryAttribute !== undefined) docRequest.IndustryAttribute = document.IndustryAttribute;
+                if (document.UserAttribute !== undefined) docRequest.UserAttribute = document.UserAttribute;
+                if (document.TimeZone !== undefined) docRequest.TimeZone = document.TimeZone;
+                docRequest.OperationOnline = document.OperationOnline;
+                if (document.AdditionalAttribute) docRequest.AdditionalAttribute = document.AdditionalAttribute;
+                if (document.CorrectionData !== undefined) docRequest.CorrectionData = document.CorrectionData;
+                request.Document = docRequest;
+            }
+
+            return request;
         }
     };
 }

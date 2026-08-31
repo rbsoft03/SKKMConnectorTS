@@ -1,8 +1,10 @@
-import { ResponseResult } from "./ResponseResult.js";
+import { ResponseResult } from "../data/ResponseResult.js";
 
 const API_PATH = "/PrintService/api/v4/";
 const JSON_MEDIA_TYPE = "application/json";
 const DEFAULT_TIMEOUT_MS = 60_000;
+
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
 /** HTTP-транспорт к серверу ККМ.*/
 export class KkmTransport {
@@ -12,17 +14,36 @@ export class KkmTransport {
     token?: string;
     terminalId?: string;
 
+    /** Логин/пароль для Basic Auth (используется при получении токена по логину/паролю). */
+    basicAuthUser?: string;
+    basicAuthPassword?: string;
+
     /** Таймаут запроса в миллисекундах. */
     timeoutMs: number = DEFAULT_TIMEOUT_MS;
 
     private disposed = false;
+    /** Контроллер текущего выполняющегося запроса — нужен для cancelCurrent(). */
+    private currentAbort: AbortController | undefined;
 
-    async get(path: string): Promise<ResponseResult<unknown>> {
-        return this.send("GET", path, undefined);
+    async get(path: string, useBasicAuth = false): Promise<ResponseResult<unknown>> {
+        return this.send("GET", path, undefined, useBasicAuth);
     }
 
     async post(path: string, body?: object): Promise<ResponseResult<unknown>> {
-        return this.send("POST", path, body);
+        return this.send("POST", path, body, false);
+    }
+
+    async put(path: string, body?: object): Promise<ResponseResult<unknown>> {
+        return this.send("PUT", path, body, false);
+    }
+
+    async delete(path: string): Promise<ResponseResult<unknown>> {
+        return this.send("DELETE", path, undefined, false);
+    }
+
+    /** Отменяет текущий выполняющийся запрос, если он есть. */
+    cancelCurrent(): void {
+        this.currentAbort?.abort();
     }
 
     /** Закрывает транспорт. После вызова все запросы будут отклонены . */
@@ -31,9 +52,10 @@ export class KkmTransport {
     }
 
     private async send(
-        method: "GET" | "POST",
+        method: HttpMethod,
         relativeUrl: string,
-        body: object | undefined
+        body: object | undefined,
+        useBasicAuth: boolean
     ): Promise<ResponseResult<unknown>> {
         if (this.disposed) {
             return this.failResult(-1, "Коннектор закрыт. Создайте новый ServerKkm.");
@@ -43,18 +65,24 @@ export class KkmTransport {
         }
 
         const url = this.requestUri(relativeUrl);
-        const headers = this.buildHeaders(method);
+        const headers = this.buildHeaders(method, useBasicAuth);
 
         let requestBody: string | undefined;
-        if (method === "POST" && body !== undefined) {
+        if (body !== undefined && method !== "GET" && method !== "DELETE") {
             requestBody = JSON.stringify(body, null, 2);
         }
 
         const timeoutMs = this.timeoutMs > 0 ? this.timeoutMs : DEFAULT_TIMEOUT_MS;
-        const controller = new AbortController();
-        const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
+        const timeoutController = new AbortController();
+        const timeoutHandle = setTimeout(() => timeoutController.abort(), timeoutMs);
 
-        const init: RequestInit = { method, headers, signal: controller.signal };
+        // Отдельный контроллер под ручную отмену через cancelCurrent() —
+        // хранится на транспорте, чтобы ServerKkm.cancel() мог его найти.
+        const cancelController = new AbortController();
+        this.currentAbort = cancelController;
+
+        const signal = anySignal([timeoutController.signal, cancelController.signal]);
+        const init: RequestInit = { method, headers, signal };
         if (requestBody !== undefined) {
             init.body = requestBody;
         }
@@ -77,12 +105,18 @@ export class KkmTransport {
             }
         } catch (err) {
             if (err instanceof DOMException && err.name === "AbortError") {
+                if (cancelController.signal.aborted) {
+                    return this.failResult(-3, "Запрос отменён");
+                }
                 return this.failResult(-2, "Превышено время ожидания ответа сервера");
             }
             const message = err instanceof Error ? err.message : String(err);
             return this.failResult(-1, `Ошибка соединения: ${message}`);
         } finally {
             clearTimeout(timeoutHandle);
+            if (this.currentAbort === cancelController) {
+                this.currentAbort = undefined;
+            }
         }
     }
 
@@ -103,17 +137,24 @@ export class KkmTransport {
         return `${scheme}://${this.host}:${this.port}${fullPath}${query ? `?${query}` : ""}`;
     }
 
-    private buildHeaders(method: "GET" | "POST"): Record<string, string> {
+    private buildHeaders(method: HttpMethod, useBasicAuth: boolean): Record<string, string> {
         const headers: Record<string, string> = {};
 
-        if (method === "POST") {
+        if (method !== "GET" && method !== "DELETE") {
             headers["Content-Type"] = JSON_MEDIA_TYPE;
         }
-        if (this.token) {
-            headers["api_key"] = this.token;
-        }
-        if (this.terminalId) {
-            headers["TerminalId"] = this.terminalId;
+
+        if (useBasicAuth) {
+            const user = this.basicAuthUser ?? "";
+            const password = this.basicAuthPassword ?? "";
+            headers["Authorization"] = `Basic ${btoa(`${user}:${password}`)}`;
+        } else {
+            if (this.token) {
+                headers["api_key"] = this.token;
+            }
+            if (this.terminalId) {
+                headers["TerminalId"] = this.terminalId;
+            }
         }
 
         return headers;
@@ -164,4 +205,17 @@ export class KkmTransport {
                 return `Ошибка HTTP ${statusCode}: ${fallback}`;
         }
     }
+}
+
+/** Объединяет несколько AbortSignal в один — тот, что сработает первым,отменяет общий сигнал.*/
+function anySignal(signals: AbortSignal[]): AbortSignal {
+    const controller = new AbortController();
+    for (const signal of signals) {
+        if (signal.aborted) {
+            controller.abort();
+            break;
+        }
+        signal.addEventListener("abort", () => controller.abort(), { once: true });
+    }
+    return controller.signal;
 }

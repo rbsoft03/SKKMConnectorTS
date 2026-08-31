@@ -12,10 +12,22 @@ class ServerKkmBase {
 
     private disposed = false;
 
-    /** Освобождает HTTP-соединение с сервером ККМ.*/
+    /**
+     * Отменяет текущий выполняющийся HTTP-запрос к серверу ККМ, если он есть.
+     * Аналог ServerKkm.Cancel() в C#.
+     */
+    cancel(): void {
+        this.http.cancelCurrent();
+    }
+
+    /**
+     * Освобождает HTTP-соединение с сервером ККМ. После этого экземпляр
+     * использовать нельзя — создайте новый, если снова нужен доступ к кассе.
+     */
     dispose(): void {
         if (this.disposed) return;
         this.disposed = true;
+        this.cancel();
         this.http.dispose();
     }
 }

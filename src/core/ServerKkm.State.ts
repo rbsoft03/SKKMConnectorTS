@@ -12,6 +12,21 @@ import { CheckDocument } from "../dto/results/CheckDocument.js";
 import { ResponseTaskStatus } from "../dto/results/ResponseTaskStatus.js";
 import { PrintFormLine } from "../dto/results/PrintFormLine.js";
 import { ShiftListItem } from "../dto/results/ShiftListItem.js";
+import { UserToken } from "../dto/admin/UserToken.js";
+import { ServiceUser } from "../dto/admin/ServiceUser.js";
+import { ServiceSettings } from "../dto/admin/ServiceSettings.js";
+import { QueueItem, QueueTaskState } from "../dto/queue/QueueModels.js";
+import {
+    DeviceTaskInfo,
+    OperationHistoryItem,
+    OperationKmRow,
+    OperationListItem,
+} from "../dto/operations/OperationModels.js";
+import { PrintTemplate } from "../dto/templates/PrintTemplate.js";
+import { CheckTemplate } from "../dto/templates/CheckTemplate.js";
+import { CheckTemplateListItem } from "../dto/templates/CheckTemplateListItem.js";
+import { FiscalizationDocument } from "../dto/fiscalization/FiscalizationModels.js";
+import { MarkingVerifyResult } from "../dto/marking/MarkingVerifyModels.js";
 
 /**Свойства-результаты последнего вызова.*/
 export function WithState<TBase extends Constructor>(Base: TBase) {
@@ -65,21 +80,6 @@ export function WithState<TBase extends Constructor>(Base: TBase) {
         /** Необнуляемая сумма продаж после GetOverAll. */
         NonZeroSum = 0;
 
-        /** Дата последней операции после GetLastOperation (ISO-строка). */
-        LastOperationDate = "";
-
-        /** Тип последней операции после GetLastOperation. */
-        LastOperationType = 0;
-
-        /** Номер документа последней операции. */
-        LastOperationDocNumber = 0;
-
-        /** Номер смены последней операции. */
-        LastOperationShiftNumber = 0;
-
-        /** Сумма документа последней операции. */
-        LastOperationSum = 0;
-
         /** Результат локальной проверки КМ после RequestKM. */
         MarkingCheck: RequestKmResult | undefined = undefined;
 
@@ -103,5 +103,68 @@ export function WithState<TBase extends Constructor>(Base: TBase) {
 
         /** Список отчётов после GetShiftList / GetOpenShiftList / GetReportXList / GetReportSettlementList. */
         Shifts: ShiftListItem[] = [];
+
+        /** Версия сервера. */
+        ServerVersion = "";
+
+        /** Токен пользователя. */
+        UserToken: UserToken | undefined = undefined;
+
+        /** Список пользователей. */
+        Users: ServiceUser[] = [];
+
+        /** Настройки службы. */
+        ServiceSettingsResult: ServiceSettings | undefined = undefined;
+
+        /** Список пулов. */
+        Pools: string[] = [];
+
+        /** Очередь печати. */
+        Queue: QueueItem[] = [];
+
+        /** Состояние задания очереди. */
+        QueueTask: QueueTaskState | undefined = undefined;
+
+        /** Операция. */
+        Operation: DeviceTaskInfo | undefined = undefined;
+
+        /** История операции. */
+        OperationHistory: OperationHistoryItem[] = [];
+
+        /** TLV операции. */
+        OperationTlv = "";
+
+        /** Коды маркировки операции. */
+        OperationKm: OperationKmRow[] = [];
+
+        /** Связанные операции. */
+        RelatedOperations: DeviceTaskInfo[] = [];
+
+        /** Список операций. */
+        Operations: OperationListItem[] = [];
+
+        /** Шаблон печати. */
+        PrintTemplate: PrintTemplate | undefined = undefined;
+
+        /** Список шаблонов печати. */
+        Templates: PrintTemplate[] = [];
+
+        /** Шаблон чека. */
+        CheckTemplate: CheckTemplate | undefined = undefined;
+
+        /** Список шаблонов чека. */
+        CheckTemplates: CheckTemplateListItem[] = [];
+
+        /** Документ фискализации. */
+        FiscalizationDocument: FiscalizationDocument | undefined = undefined;
+
+        /** Список фискализаций. */
+        Fiscalizations: FiscalizationDocument[] = [];
+
+        /** Результат проверки маркировки. */
+        MarkingVerify: MarkingVerifyResult | undefined = undefined;
+
+        /** Картинка в Base64. */
+        PictureBase64Result = "";
     };
 }

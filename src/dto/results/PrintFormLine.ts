@@ -1,4 +1,5 @@
 import { SeparatorLine } from "../positions/SeparatorLine.js";
+import type { Picture } from "./Picture.js";
 import { PrintFormBarcode } from "./PrintFormBarcode.js";
 
 /** Строка печатной формы. */
@@ -35,6 +36,9 @@ export class PrintFormLine {
 
     /** Разделительная линия. */
     SeparatorLine?: SeparatorLine;
+
+    /** Изображение. */
+    Picture?: Picture;
 
     /** Штрихкод. */
     Barcode?: PrintFormBarcode;

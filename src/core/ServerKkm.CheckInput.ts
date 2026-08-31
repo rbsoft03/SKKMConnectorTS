@@ -80,8 +80,11 @@ export function WithCheckInput<TBase extends Constructor>(Base: TBase) {
 
         // Чек
 
-        /** Тип чека. */
+        /** Тип чека / задания. В GetOperationLast уходит как tasktype. */
         PaymentType: number = CheckType.Sale;
+
+        /** Только обработанные операции. Параметр isProcessed в GetOperationLast. */
+        IsProcessed = false;
 
         /** Система налогообложения (СНО). */
         TaxVariant: number = TaxSystem.ОСН;

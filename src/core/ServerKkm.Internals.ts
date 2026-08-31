@@ -4,6 +4,8 @@ import type { ResponseResult } from "../data/ResponseResult.js";
 import { FiscalResult } from "../dto/results/FiscalResult.js";
 import { CheckDocument } from "../dto/results/CheckDocument.js";
 import { ShiftListItem } from "../dto/results/ShiftListItem.js";
+import { PrintTemplate } from "../dto/templates/PrintTemplate.js";
+import { DeviceTaskInfo } from "../dto/operations/OperationModels.js";
 
 
 function toCompactDateTime(iso: string | undefined): string {
@@ -21,6 +23,11 @@ function toCompactDateTime(iso: string | undefined): string {
     );
 }
 
+/**
+ * Минимальный набор членов, которые Internals ожидает от TBase — то есть
+ * то, что реально используется здесь из State/Connection/CheckInput и
+ * базового класса (ServerKkm.ts).
+ */
 interface InternalsRequirements {
     http: KkmTransport;
     Host: string;
@@ -29,6 +36,8 @@ interface InternalsRequirements {
     Token: string;
     TerminalId: string;
     TimeoutMs: number;
+    AuthUserName: string;
+    AuthPassword: string;
     DeviceName: string;
     DocumentId: string;
     ShiftsFrom: string;
@@ -45,6 +54,7 @@ interface InternalsRequirements {
     Check: CheckDocument | undefined;
     Checks: CheckDocument[];
     Shifts: ShiftListItem[];
+    Operation: DeviceTaskInfo | undefined;
 }
 
 /** Транспортная инфраструктура: выбор соединения, вызов и разбор ответа.*/
@@ -59,6 +69,11 @@ export function WithInternals<TBase extends Constructor<InternalsRequirements>>(
             return `id=${encodeURIComponent(this.DocumentId)}`;
         }
 
+        /** Аналог DocIdQuery в C# — используется новыми методами (operation, fiscalization, ...). */
+        get docIdQuery(): string {
+            return `docId=${encodeURIComponent(this.DocumentId)}`;
+        }
+
         /** Настраивает и возвращает транспорт по текущим параметрам подключения. */
         transport(): KkmTransport {
             this.http.host = this.Host;
@@ -67,6 +82,8 @@ export function WithInternals<TBase extends Constructor<InternalsRequirements>>(
             this.http.token = this.Token;
             this.http.terminalId = this.TerminalId;
             this.http.timeoutMs = this.TimeoutMs;
+            this.http.basicAuthUser = this.AuthUserName;
+            this.http.basicAuthPassword = this.AuthPassword;
             return this.http;
         }
 
@@ -111,8 +128,6 @@ export function WithInternals<TBase extends Constructor<InternalsRequirements>>(
 
             this.FiscalResult = fiscal;
 
-            // Обновляем плоские свойства только если сервер реально вернул значение,
-            // чтобы не затирать их нулями на ответах без фискальных полей.
             if (fiscal.fiscalSign) this.FiscalSign = fiscal.fiscalSign;
             if (fiscal.fiscalNumber > 0) this.CheckNumber = fiscal.fiscalNumber;
             if (fiscal.shiftNumber > 0) this.ShiftNumber = fiscal.shiftNumber;
@@ -148,12 +163,45 @@ export function WithInternals<TBase extends Constructor<InternalsRequirements>>(
             this.FiscalResult = fiscal;
         }
 
-        async get(path: string): Promise<void> {
-            this.apply(await this.transport().get(path));
+        /**
+         * Разбирает список шаблонов из LastResult: сервер может вернуть либо
+         * массив строк (только имена), либо массив полных объектов PrintTemplate.
+         */
+        readTemplateList(): PrintTemplate[] {
+            if (!Array.isArray(this.LastResult)) return [];
+
+            return this.LastResult.map((item) => {
+                if (typeof item === "string") {
+                    const template = new PrintTemplate();
+                    template.Name = item;
+                    return template;
+                }
+                return item as PrintTemplate;
+            });
+        }
+
+        /** Сохраняет операцию и подтягивает DocumentId из неё, если он есть. */
+        applyOperation(operation: DeviceTaskInfo | undefined): void {
+            this.Operation = operation;
+            if (operation?.DocId) {
+                this.DocumentId = operation.DocId;
+            }
+        }
+
+        async get(path: string, useBasicAuth = false): Promise<void> {
+            this.apply(await this.transport().get(path, useBasicAuth));
         }
 
         async post(path: string, body?: object): Promise<void> {
             this.apply(await this.transport().post(path, body));
+        }
+
+        async put(path: string, body?: object): Promise<void> {
+            this.apply(await this.transport().put(path, body));
+        }
+
+        async delete(path: string): Promise<void> {
+            this.apply(await this.transport().delete(path));
         }
 
         /** GET документа по DocumentId. */
@@ -168,9 +216,13 @@ export function WithInternals<TBase extends Constructor<InternalsRequirements>>(
             this.Checks = this.readResult<CheckDocument[]>() ?? [];
         }
 
-        /** GET списка отчётов за период ShiftsFrom..ShiftsTo. */
-        async getReportList(path: string): Promise<void> {
-            await this.get(`${path}?${this.deviceQuery}&from=${this.ShiftsFrom}&to=${this.ShiftsTo}`);
+        /** GET списка отчётов за период ShiftsFrom..ShiftsTo, с опциональным доп. фильтром в query. */
+        async getReportList(path: string, extraQuery?: string): Promise<void> {
+            let query = `${this.deviceQuery}&from=${this.ShiftsFrom}&to=${this.ShiftsTo}`;
+            if (extraQuery) {
+                query += `&${extraQuery}`;
+            }
+            await this.get(`${path}?${query}`);
             this.Shifts = this.readResult<ShiftListItem[]>() ?? [];
         }
     };

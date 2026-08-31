@@ -1,0 +1,31 @@
+/** Настройки кассы на сервере ККМ. */
+export class DeviceSettings {
+    DeviceName: string = "";
+    DeviceType: number = 0;
+    Available: boolean = false;
+    MethodConnection: number = 0;
+    PortNumber: number = 0;
+    BaudRate: number = 0;
+    IpAddress: string = "";
+    TcpPort: number = 0;
+    Password: string = "";
+    AccessPassword: string = "";
+    SerialNumber: string = "";
+    Vatin: string = "";
+    OrganizationName: string = "";
+    SaleAddress: string = "";
+    ClientSaleLocation: string = "";
+    Cashier: string = "";
+    CashierVatin: string = "";
+    SenderEmail: string = "";
+    TimeoutConnection: number = 0;
+    TimeoutWaitForPrinting: number = 0;
+    OfdAddress: string = "";
+    OfdPort: number = 0;
+    Pool: string = "";
+    TemplateSettingH1: string = "";
+    TemplateSettingH2: string = "";
+    TemplateSettingH3: string = "";
+    TemplateSettingH4: string = "";
+    TemplateSettingH5: string = "";
+}
