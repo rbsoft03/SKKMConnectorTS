@@ -69,7 +69,6 @@ export function WithInternals<TBase extends Constructor<InternalsRequirements>>(
             return `id=${encodeURIComponent(this.DocumentId)}`;
         }
 
-        /** Аналог DocIdQuery в C# — используется новыми методами (operation, fiscalization, ...). */
         get docIdQuery(): string {
             return `docId=${encodeURIComponent(this.DocumentId)}`;
         }

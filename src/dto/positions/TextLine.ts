@@ -6,9 +6,9 @@ export class TextLine extends Position {
     /** Текст строки */
     Text: string = "";
 
-    /** Шрифт. Значение из PrintFont, передаётся строкой (как в C#). */
+    /** Шрифт. */
     Font?: string;
     
-    /** Выравнивание. Значение из PrintAlignment, передаётся строкой (как в C#). */
+    /** Выравнивание. */
     Alignment?: string;
 }

@@ -12,10 +12,7 @@ class ServerKkmBase {
 
     private disposed = false;
 
-    /**
-     * Отменяет текущий выполняющийся HTTP-запрос к серверу ККМ, если он есть.
-     * Аналог ServerKkm.Cancel() в C#.
-     */
+    /** Отменяет текущий выполняющийся HTTP-запрос к серверу ККМ, если он есть.*/
     cancel(): void {
         this.http.cancelCurrent();
     }

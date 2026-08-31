@@ -101,11 +101,7 @@ function textToApi(text: TextLine): ApiPosition {
     return api;
 }
 
-/**
- * Список позиций (любой, не только текущего чека) в модель запроса.
- * Аналог статического ToApiPositions(IEnumerable<Position>?) в C# —
- * вынесен отдельно, чтобы переиспользовать в checkTemplateBody().
- */
+/** Список позиций (любой, не только текущего чека) в модель запроса.*/
 function toApiPositions(positions: Position[] | undefined): ApiPosition[] {
     if (!positions) return [];
     return positions.map((position) => toApi(position));

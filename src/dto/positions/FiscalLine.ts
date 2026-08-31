@@ -18,11 +18,9 @@ export class FiscalLine extends Position {
     Quantity: number = 1;
 
     /** Цена единицы товара с учетом скидок/наценок*/
-    /** @wireName PriceWithDiscount (в C# — Price) */
     Price: number = 0;
 
     /** Конечная сумма по позиции чека с учетом всех скидок/наценок*/
-    /** @wireName SumWithDiscount (в C# — Sum) */
     Sum: number = 0;
 
     /** Сумма скидок и наценок*/
