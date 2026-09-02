@@ -1,3 +1,6 @@
+import { MarkingPlannedStatus } from "../../dto/enums/MarkingPlannedStatus.js";
+import { MeasureOfQuantity } from "../../dto/enums/MeasureOfQuantity.js";
+
 /**Параметры проверяемого кода маркировки.*/
 export class RequestKm {
     
@@ -14,13 +17,13 @@ export class RequestKm {
     MarkingCode?: string;
 
     /** Планируемый статус товара (тег 2003). */
-    PlannedStatus: number = 0;
+    PlannedStatus: MarkingPlannedStatus = MarkingPlannedStatus.NotSpecified;
 
     /** Количество предмета расчёта. */
     Quantity: number = 0;
 
     /** Мера количества предмета расчёта (таблица 114 ФФД). */
-    MeasureOfQuantity: number = 0;
+    MeasureOfQuantity: MeasureOfQuantity = MeasureOfQuantity.Piece;
 
     /** Числитель дробного количества маркированного товара. */
     FractionalQuantityNumerator?: number;

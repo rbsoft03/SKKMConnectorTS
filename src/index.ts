@@ -83,3 +83,11 @@ export { CheckTemplateListItem } from "./dto/templates/CheckTemplateListItem.js"
 export { CheckTemplateDocument } from "./dto/templates/CheckTemplateDocument.js";
 export { CheckTemplate } from "./dto/templates/CheckTemplate.js";
 export { CheckTemplateParameters } from "./dto/templates/CheckTemplateParameters.js";
+export { AgentType } from "./dto/enums/AgentType.js";
+export { CheckTimeZone } from "./dto/enums/CheckTimeZone.js";
+export { KmConfirmationType } from "./dto/enums/KmConfirmationType.js";
+export { MarkingPlannedStatus } from "./dto/enums/MarkingPlannedStatus.js";
+export { MeasureOfQuantity } from "./dto/enums/MeasureOfQuantity.js";
+export { PictureAlignment } from "./dto/enums/PictureAlignment.js";
+export { SignCalculationObject } from "./dto/enums/SignCalculationObject.js";
+export { SignMethodCalculation } from "./dto/enums/SignMethodCalculation.js";

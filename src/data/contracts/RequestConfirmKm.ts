@@ -1,3 +1,5 @@
+import { KmConfirmationType } from "../../dto/enums/KmConfirmationType.js";
+
 /**Тело запроса подтверждения кода маркировки.*/
 export class RequestConfirmKm {
     
@@ -8,5 +10,5 @@ export class RequestConfirmKm {
     GUID?: string;
 
     /** Тип подтверждения: 0 - включить в документ, 1 - не включать. */
-    ConfirmationType: number = 0;
+    ConfirmationType: KmConfirmationType = KmConfirmationType.Included;
 }

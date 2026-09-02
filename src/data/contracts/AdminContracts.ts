@@ -9,6 +9,7 @@ import { OperationalAttribute } from "../../dto/OperationalAttribute.js";
 import { Industry } from "../../dto/positions/Industry.js";
 import { UserAttribute } from "../../dto/UserAttribute.js";
 import { CorrectionData } from "../../dto/CorrectionData.js";
+import type { CheckTimeZone } from "../../dto/enums/CheckTimeZone.js";
 
 export class DeviceSettingsRequest {
     DeviceName?: string;
@@ -51,7 +52,7 @@ export class CheckTemplateDocumentRequest {
     OperationalAttribute?: OperationalAttribute;
     IndustryAttribute?: Industry;
     UserAttribute?: UserAttribute;
-    TimeZone?: number;
+    TimeZone?: CheckTimeZone;
     OperationOnline: boolean = false;
     AdditionalAttribute?: string;
     CorrectionData?: CorrectionData;

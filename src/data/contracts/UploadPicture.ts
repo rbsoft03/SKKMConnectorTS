@@ -1,3 +1,5 @@
+import { PictureAlignment } from "../../dto/enums/PictureAlignment.js";
+
 /**Тело запроса загрузки картинки.*/
 export class UploadPicture {
     
@@ -11,5 +13,5 @@ export class UploadPicture {
     PictureName?: string;
 
     /** Выравнивание: 1 - слева, 2 - по центру, 3 - справа. */
-    Alignment: number = 2;
+    Alignment: PictureAlignment = PictureAlignment.Center;
 }

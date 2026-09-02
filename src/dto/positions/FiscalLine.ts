@@ -4,6 +4,10 @@ import { Vendor } from "./Vendor.js";
 import { Marking } from "./Marking.js";
 import { FractionalQuantity } from "./FractionalQuantity.js";
 import { Industry } from "./Industry.js";
+import { SignMethodCalculation } from "../enums/SignMethodCalculation.js";
+import { SignCalculationObject } from "../enums/SignCalculationObject.js";
+import { MeasureOfQuantity } from "../enums/MeasureOfQuantity.js";
+import { AgentType } from "../enums/AgentType.js";
 
 /** Фискальная строка чека. */
 export class FiscalLine extends Position {
@@ -36,15 +40,15 @@ export class FiscalLine extends Position {
     Department: number = 0;
 
     /** Признак способа расчета*/
-    SignMethodCalculation?: number;
+    SignMethodCalculation?: SignMethodCalculation;
 
     /** Признак предмета расчета*/
-    SignCalculationObject?: number;
+    SignCalculationObject?: SignCalculationObject;
     /** Единица измерения предмета расчета*/
     MeasurementUnit?: string;
 
     /** Мера количества предмета расчета*/
-    MeasureOfQuantity?: number;
+    MeasureOfQuantity?: MeasureOfQuantity;
 
     /** Сумма акциза с учетом копеек*/
     ExciseAmount?: number;
@@ -56,7 +60,7 @@ export class FiscalLine extends Position {
     CustomsDeclaration?: string;
 
     /** Признак агента по предмету расчета*/
-    SignSubjectCalculationAgent?: number;
+    SignSubjectCalculationAgent?: AgentType;
 
     /** Данные агента*/
     AgentData?: Agent;

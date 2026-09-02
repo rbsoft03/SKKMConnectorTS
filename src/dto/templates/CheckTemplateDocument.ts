@@ -7,6 +7,7 @@ import { CorrectionData } from "../CorrectionData.js";
 import { Industry } from "../positions/Industry.js";
 import { UserAttribute } from "../UserAttribute.js";
 import { OperationalAttribute } from "../OperationalAttribute.js";
+import type { CheckTimeZone } from "../enums/CheckTimeZone.js";
 
 /** Документ шаблона чека. */
 export class CheckTemplateDocument {
@@ -17,7 +18,7 @@ export class CheckTemplateDocument {
     TaxVariant: number = 0;
 
     /** Часовая зона. */
-    TimeZone?: number;
+    TimeZone?: CheckTimeZone;
 
     /** Признак расчёта в сети Интернет. */
     OperationOnline: boolean = false;

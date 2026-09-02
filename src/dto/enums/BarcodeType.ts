@@ -1,39 +1,39 @@
 /**Тип штрихкода для печати в документе.*/
 export enum BarcodeType{
     
-    /// QR-код
+    /**QR-код*/
     QR,
 
-    /// EAN-13
+    /**EAN-13 */
     EAN13,
 
-    /// EAN-8
+    /**EAN-8 */
     EAN8,
 
-    /// Code 39
+    /**Code 39 */
     CODE39,
 
-    /// Code 93
+    /**Code 93 */
     CODE93,
 
-    /// Code 128
+    /**Code 128 */
     CODE128,
 
-    /// UPC-A
+    /**UPC-A */
     UPCA,
 
-    /// UPC-E
+    /**UPC-E */
     UPCE,
 
-    /// Interleaved 2 of 5
+    /**Interleaved 2 of 5 */
     ITF,
 
-    /// Codabar
+    /**Codabar */
     CODABAR,
 
-    /// PDF417
+    /**PDF417 */
     PDF417,
 
-    /// Code 32
+    /**Code 32 */
     CODE32
 }

@@ -1,4 +1,5 @@
 import { Position } from "./Position.js";
+import { PictureAlignment } from "../enums/PictureAlignment.js";
 
 /**Изображение*/
 export class PictureLine extends Position{
@@ -7,7 +8,7 @@ export class PictureLine extends Position{
     Value: string = "";
 
     /**Выравнивание изображения*/
-    Alignment: number = 2;
+    Alignment: PictureAlignment = PictureAlignment.Center;
 
     /**Ширина изображения*/
     Width?: number;

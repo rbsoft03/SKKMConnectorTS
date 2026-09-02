@@ -1,3 +1,5 @@
+import { PictureAlignment } from "../enums/PictureAlignment.js";
+
 /** Элемент списка изображений. */
 export class Picture {
 
@@ -5,7 +7,7 @@ export class Picture {
     PictureName?: string;
     
     /** Выравнивание: 1 — по левому краю; 2 — по центру; 3 — по правому краю. */
-    Alignment: number = 2;
+    Alignment: PictureAlignment = PictureAlignment.Center;
 
     /** Изображение в Base64 (строка шаблона печати / печатной формы). */
     PictureBase64?: string;
