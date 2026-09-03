@@ -12,6 +12,8 @@ import { Correction120Parameters } from "../data/contracts/Correction120Paramete
 import { Correction105Parameters } from "../data/contracts/Correction105Parameters.js";
 import { DocumentParameters } from "../data/contracts/DocumentParameters.js";
 import { CashdrawParameters } from "../data/contracts/CashdrawParameters.js";
+import { ShiftState } from "../dto/enums/ShiftState.js";
+import { Warnings } from "../dto/results/Warnings.js";
 import {
     DeviceSettingsRequest,
     ServiceSettingsRequest,
@@ -133,6 +135,21 @@ interface ApiRequirements {
     FiscalSign: string;
     ShiftNumber: number;
     CheckNumber: number;
+    CheckNumberInShift: number;
+    RnNumber: string;
+    FnsUrl: string;
+    ServerDateTime: string;
+    FiscalDateTime: string;
+    DeviceDateTime: string;
+    CurrentShiftState: ShiftState | undefined;
+    BacklogDocumentsCount: number;
+    BacklogFirstDocumentNumber: number;
+    BacklogFirstDocumentDateTime: string | undefined;
+    FnValidityDate: string;
+    FnDaysResources: number;
+    IsFnPresent: boolean;
+    IsFiscal: boolean;
+    FnWarnings: Warnings | undefined;
     IsProcessed: boolean;
     Ok: boolean;
     ErrorCode: number;
@@ -156,8 +173,6 @@ interface ApiRequirements {
     TaskStatus: ResponseTaskStatus | undefined;
     PrintForm: PrintFormLine[];
     Shifts: ShiftListItem[];
-
-    // Новые входные поля подключения (AuthUserName и т.д. — ServerKkm.Connection.ts)
     AuthUserName: string;
     AuthPassword: string;
     PoolName: string;
@@ -174,8 +189,6 @@ interface ApiRequirements {
     TemplateParameters: TemplateParameters | undefined;
     CheckTemplateParameters: CheckTemplateParameters | undefined;
     FiscalizationParameters: FiscalizationParameters | undefined;
-
-    // Новые поля результатов (ServerKkm.State.ts)
     ServerVersion: string;
     UserToken: UserToken | undefined;
     Users: ServiceUser[];
@@ -251,6 +264,23 @@ export function WithApi<TBase extends Constructor<ApiRequirements>>(Base: TBase)
             this.FiscalSign = "";
             this.ShiftNumber = 0;
             this.CheckNumber = 0;
+            this.CheckNumberInShift = 0;
+            this.RnNumber = "";
+            this.FnsUrl = "";
+            this.ServerDateTime = "";
+            this.FiscalDateTime = "";
+            this.DeviceDateTime = "";
+            this.CurrentShiftState = undefined;
+            this.BacklogDocumentsCount = 0;
+            this.BacklogFirstDocumentNumber = 0;
+            this.BacklogFirstDocumentDateTime = undefined;
+            this.FnValidityDate = "";
+            this.FnDaysResources = 0;
+            this.IsFnPresent = false;
+            this.IsFiscal = false;
+            this.FnWarnings = undefined;
+            this.FnNumber = "";
+            this.CashBalance = 0;
             this.ShiftTotals = undefined;
             this.NonZeroSum = 0;
             this.Ok = false;

@@ -1,32 +1,52 @@
+import type { ShiftState } from "../enums/ShiftState.js";
+import type { Backlog } from "./Backlog.js";
+import type { CashDrawer } from "./CashDrawer.js";
+import type { FiscalOutputParameters } from "./FiscalOutputParameters.js";
+
 export class FiscalResult {
     
     /** Время операции. */
-    datetime?: string;
+    Datetime?: string;
 
     /** Название устройства.*/
-    deviceName?: string;
+    DeviceName?: string;
 
     /** Идентификатор документа.*/
-    docId?: string;
+    DocId?: string;
 
     /** Адрес сайта ФНС.*/
-    fnsUrl?: string;
+    FnsUrl?: string;
 
     /** Номер фискального накопителя.*/
-    fnNumber?: string;
+    FnNumber?: string;
 
     /** Регистрационный номер ККТ.*/
-    rnNumber?: string;
+    RnNumber?: string;
 
     /** Дата и время документа по часам ФН.*/
-    fiscalDatetime?: string;
+    FiscalDatetime?: string;
 
     /** Фискальный признак документа.*/
-    fiscalSign?: string;
+    FiscalSign?: string;
 
     /** Номер смены.*/
-    shiftNumber: number = 0;
+    ShiftNumber: number = 0;
 
     /** Номер фискального документа.*/
-    fiscalNumber: number = 0;
+    FiscalNumber: number = 0;
+
+    /** Сумма наличных в результате операции. */
+    CashSum?: number;
+
+    /** Состояние денежного ящика. */
+    CashDrawer?: CashDrawer;
+
+    /** Непереданные документы. */
+    Backlog?: Backlog;
+
+    /** Дополнительные параметры вывода. */
+    OutputParameters?: FiscalOutputParameters;
+
+    /** Состояние смены. */
+    ShiftState?: ShiftState;
 }

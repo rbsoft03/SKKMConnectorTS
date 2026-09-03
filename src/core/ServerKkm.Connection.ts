@@ -58,7 +58,7 @@ export function WithConnection<TBase extends Constructor>(Base: TBase) {
         /** Идентификатор пользователя сервера ККМ. */
         UserId = "";
 
-        /** Номер ФН для печати копии чека по данным ФН. */
+        /** Номер ФН. */
         FnNumber = "";
 
         /** Коды маркировки для проверки. */

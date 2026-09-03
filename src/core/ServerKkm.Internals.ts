@@ -2,10 +2,15 @@ import type { Constructor } from "./Constructor.js";
 import type { KkmTransport } from "../data/KkmTransport.js";
 import type { ResponseResult } from "../data/ResponseResult.js";
 import { FiscalResult } from "../dto/results/FiscalResult.js";
+import { Backlog } from "../dto/results/Backlog.js";
+import { CashDrawer } from "../dto/results/CashDrawer.js";
+import { FiscalOutputParameters } from "../dto/results/FiscalOutputParameters.js";
 import { CheckDocument } from "../dto/results/CheckDocument.js";
 import { ShiftListItem } from "../dto/results/ShiftListItem.js";
 import { PrintTemplate } from "../dto/templates/PrintTemplate.js";
 import { DeviceTaskInfo } from "../dto/operations/DeviceTaskInfo.js";
+import { ShiftState } from "../dto/enums/ShiftState.js";
+import { Warnings } from "../dto/results/Warnings.js";
 
 
 function toCompactDateTime(iso: string | undefined): string {
@@ -50,6 +55,23 @@ interface InternalsRequirements {
     FiscalResult: FiscalResult | undefined;
     FiscalSign: string;
     CheckNumber: number;
+    CheckNumberInShift: number;
+    RnNumber: string;
+    FnsUrl: string;
+    ServerDateTime: string;
+    FiscalDateTime: string;
+    DeviceDateTime: string;
+    CurrentShiftState: ShiftState | undefined;
+    BacklogDocumentsCount: number;
+    BacklogFirstDocumentNumber: number;
+    BacklogFirstDocumentDateTime: string | undefined;
+    FnValidityDate: string;
+    FnDaysResources: number;
+    IsFnPresent: boolean;
+    IsFiscal: boolean;
+    FnWarnings: Warnings | undefined;
+    FnNumber: string;
+    CashBalance: number;
     ShiftNumber: number;
     Check: CheckDocument | undefined;
     Checks: CheckDocument[];
@@ -106,30 +128,125 @@ export function WithInternals<TBase extends Constructor<InternalsRequirements>>(
             const obj = result as Record<string, unknown>;
             const fiscal = new FiscalResult();
 
-            if (typeof obj.datetime === "string") fiscal.datetime = obj.datetime;
-            if (typeof obj.deviceName === "string") fiscal.deviceName = obj.deviceName;
-            if (typeof obj.docId === "string") fiscal.docId = obj.docId;
-            if (typeof obj.fnsUrl === "string") fiscal.fnsUrl = obj.fnsUrl;
-            if (typeof obj.fnNumber === "string") fiscal.fnNumber = obj.fnNumber;
-            if (typeof obj.rnNumber === "string") fiscal.rnNumber = obj.rnNumber;
-            if (typeof obj.fiscalDatetime === "string") fiscal.fiscalDatetime = obj.fiscalDatetime;
-            if (typeof obj.fiscalSign === "string") fiscal.fiscalSign = obj.fiscalSign;
-            if (typeof obj.shiftNumber === "number") fiscal.shiftNumber = obj.shiftNumber;
-            if (typeof obj.fiscalNumber === "number") fiscal.fiscalNumber = obj.fiscalNumber;
+            if (typeof obj.Datetime === "string") fiscal.Datetime = obj.Datetime;
+            if (typeof obj.DeviceName === "string") fiscal.DeviceName = obj.DeviceName;
+            if (typeof obj.DocId === "string") fiscal.DocId = obj.DocId;
+            if (typeof obj.FnsUrl === "string") fiscal.FnsUrl = obj.FnsUrl;
+            if (typeof obj.FnNumber === "string") fiscal.FnNumber = obj.FnNumber;
+            if (typeof obj.RnNumber === "string") fiscal.RnNumber = obj.RnNumber;
+            if (typeof obj.FiscalDatetime === "string") fiscal.FiscalDatetime = obj.FiscalDatetime;
+            if (typeof obj.FiscalSign === "string") fiscal.FiscalSign = obj.FiscalSign;
+            if (typeof obj.ShiftNumber === "number") fiscal.ShiftNumber = obj.ShiftNumber;
+            if (typeof obj.FiscalNumber === "number") fiscal.FiscalNumber = obj.FiscalNumber;
+            if (typeof obj.CashSum === "number") fiscal.CashSum = obj.CashSum;
+            if (obj.CashDrawer && typeof obj.CashDrawer === "object") fiscal.CashDrawer = obj.CashDrawer as CashDrawer;
+            if (obj.Backlog && typeof obj.Backlog === "object") fiscal.Backlog = obj.Backlog as Backlog;
+            if (obj.OutputParameters && typeof obj.OutputParameters === "object") fiscal.OutputParameters = obj.OutputParameters as FiscalOutputParameters;
+            if (typeof obj.ShiftState === "number") fiscal.ShiftState = obj.ShiftState;
 
-            const hasSignal =
-                (fiscal.fiscalSign !== undefined && fiscal.fiscalSign.length > 0) ||
-                fiscal.fiscalNumber > 0 ||
-                fiscal.shiftNumber > 0 ||
-                (fiscal.docId !== undefined && fiscal.docId.length > 0);
+            const hasFiscal =
+                (fiscal.FiscalSign !== undefined && fiscal.FiscalSign.length > 0) ||
+                fiscal.FiscalNumber > 0 ||
+                fiscal.ShiftNumber > 0 ||
+                (fiscal.DocId !== undefined && fiscal.DocId.length > 0) ||
+                (fiscal.FnNumber !== undefined && fiscal.FnNumber.length > 0) ||
+                (fiscal.RnNumber !== undefined && fiscal.RnNumber.length > 0) ||
+                fiscal.CashSum !== undefined ||
+                fiscal.CashDrawer !== undefined ||
+                fiscal.Backlog !== undefined ||
+                fiscal.OutputParameters !== undefined ||
+                fiscal.ShiftState !== undefined ||
+                (fiscal.Datetime !== undefined && fiscal.Datetime.length > 0) ||
+                (fiscal.FiscalDatetime !== undefined && fiscal.FiscalDatetime.length > 0) ||
+                (fiscal.FnsUrl !== undefined && fiscal.FnsUrl.length > 0);
 
-            if (!hasSignal) return;
+            if (!hasFiscal) return;
 
             this.FiscalResult = fiscal;
 
-            if (fiscal.fiscalSign) this.FiscalSign = fiscal.fiscalSign;
-            if (fiscal.fiscalNumber > 0) this.CheckNumber = fiscal.fiscalNumber;
-            if (fiscal.shiftNumber > 0) this.ShiftNumber = fiscal.shiftNumber;
+            if (fiscal.DocId) this.DocumentId = fiscal.DocId;
+            if (fiscal.ShiftNumber > 0) this.ShiftNumber = fiscal.ShiftNumber;
+            if (fiscal.FiscalNumber > 0) this.CheckNumber = fiscal.FiscalNumber;
+            if (fiscal.ShiftState !== undefined) this.CurrentShiftState = fiscal.ShiftState;
+            if (fiscal.FnsUrl) this.FnsUrl = fiscal.FnsUrl;
+
+            if (fiscal.FnNumber) {
+                this.FnNumber = fiscal.FnNumber;
+                this.IsFnPresent = true;
+            } else if (fiscal.FnNumber !== undefined) {
+                this.IsFnPresent = false;
+            }
+
+            if (fiscal.RnNumber) {
+                this.RnNumber = fiscal.RnNumber;
+                this.IsFiscal = true;
+            } else if (fiscal.RnNumber !== undefined) {
+                this.IsFiscal = false;
+            }
+
+            if (fiscal.FiscalSign) this.FiscalSign = fiscal.FiscalSign;
+            if (fiscal.Datetime) this.ServerDateTime = fiscal.Datetime;
+            if (fiscal.FiscalDatetime) {
+                this.FiscalDateTime = fiscal.FiscalDatetime;
+                this.DeviceDateTime = fiscal.FiscalDatetime;
+            }
+
+            if (fiscal.CashDrawer) {
+                this.CashBalance = fiscal.CashDrawer.Sum;
+            } else if (fiscal.CashSum !== undefined) {
+                this.CashBalance = fiscal.CashSum;
+            }
+
+            this.applyBacklog(fiscal.Backlog);
+            this.applyOutputParameters(fiscal.OutputParameters);
+        }
+
+        /** Переносит данные о непереданных в ОФД документах в плоские свойства. */
+        applyBacklog(backlog: Backlog | undefined): void {
+            if (backlog === undefined) return;
+
+            this.BacklogDocumentsCount = backlog.DocumentsCounter;
+            if (backlog.DocumentsCounter > 0) {
+                this.BacklogFirstDocumentNumber = backlog.DocumentFirstNumber;
+                if (backlog.DocumentFirstDateTime) {
+                    this.BacklogFirstDocumentDateTime = backlog.DocumentFirstDateTime;
+                }
+            } else {
+                this.BacklogFirstDocumentNumber = 0;
+                this.BacklogFirstDocumentDateTime = undefined;
+            }
+        }
+
+        /** Переносит вложенный блок OutputParameters (данные о ФН, смене, ящике) в плоские свойства. */
+        applyOutputParameters(output: FiscalOutputParameters | undefined): void {
+            if (output === undefined) return;
+
+            if (output.NumberOfChecks > 0) this.CheckNumberInShift = output.NumberOfChecks;
+            if (output.DateTime) {
+                this.FiscalDateTime = output.DateTime;
+                this.DeviceDateTime = output.DateTime;
+            }
+            if (output.ShiftNumber > 0) this.ShiftNumber = output.ShiftNumber;
+            if (output.CheckNumber > 0) this.CheckNumber = output.CheckNumber;
+            this.CashBalance = output.CashBalance;
+
+            if (output.FnValidityDate) this.FnValidityDate = output.FnValidityDate;
+            if (output.ResourcesFn > 0) {
+                this.FnDaysResources = output.ResourcesFn;
+            } else if (this.FnValidityDate) {
+                const validUntil = new Date(this.FnValidityDate);
+                if (!Number.isNaN(validUntil.getTime())) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    validUntil.setHours(0, 0, 0, 0);
+                    const days = Math.round((validUntil.getTime() - today.getTime()) / 86400000);
+                    this.FnDaysResources = days < 0 ? 0 : days;
+                }
+            }
+
+            this.applyBacklog(output.Backlog);
+
+            if (output.FnWarnings !== undefined) this.FnWarnings = output.FnWarnings;
         }
 
         /** Приводит LastResult к нужному типу T (доверяем форме JSON, без валидации). */
@@ -146,20 +263,38 @@ export function WithInternals<TBase extends Constructor<InternalsRequirements>>(
             if (document.DocNumber > 0) this.CheckNumber = document.DocNumber;
             if (document.ShiftNumber > 0) this.ShiftNumber = document.ShiftNumber;
             if (document.DocId) this.DocumentId = document.DocId;
+            if (document.DocNumberInShift > 0) this.CheckNumberInShift = document.DocNumberInShift;
+
+            const header = document.DocumentHeader;
+            if (header?.Fn) {
+                this.FnNumber = header.Fn;
+                this.IsFnPresent = true;
+            }
+            if (header?.RnNumber) {
+                this.RnNumber = header.RnNumber;
+                this.IsFiscal = true;
+            }
+            if (header?.FnsUrl) this.FnsUrl = header.FnsUrl;
 
             const fiscal = new FiscalResult();
-            fiscal.datetime = document.Date;
-            if (document.DeviceName !== undefined) fiscal.deviceName = document.DeviceName;
-            if (document.DocId !== undefined) fiscal.docId = document.DocId;
-            if (document.DocumentHeader?.FnsUrl !== undefined) fiscal.fnsUrl = document.DocumentHeader.FnsUrl;
-            if (document.DocumentHeader?.Fn !== undefined) fiscal.fnNumber = document.DocumentHeader.Fn;
-            if (document.DocumentHeader?.RnNumber !== undefined) fiscal.rnNumber = document.DocumentHeader.RnNumber;
-            fiscal.fiscalDatetime = toCompactDateTime(document.FiscalDate);
-            if (document.FiscalSign !== undefined) fiscal.fiscalSign = document.FiscalSign;
-            fiscal.shiftNumber = document.ShiftNumber;
-            fiscal.fiscalNumber = document.DocNumber;
+            fiscal.Datetime = document.Date;
+            if (document.DeviceName !== undefined) fiscal.DeviceName = document.DeviceName;
+            if (document.DocId !== undefined) fiscal.DocId = document.DocId;
+            if (header?.FnsUrl !== undefined) fiscal.FnsUrl = header.FnsUrl;
+            if (header?.Fn !== undefined) fiscal.FnNumber = header.Fn;
+            if (header?.RnNumber !== undefined) fiscal.RnNumber = header.RnNumber;
+            fiscal.FiscalDatetime = toCompactDateTime(document.FiscalDate);
+            if (document.FiscalSign !== undefined) fiscal.FiscalSign = document.FiscalSign;
+            fiscal.ShiftNumber = document.ShiftNumber;
+            fiscal.FiscalNumber = document.DocNumber;
 
             this.FiscalResult = fiscal;
+
+            if (fiscal.Datetime) this.ServerDateTime = fiscal.Datetime;
+            if (fiscal.FiscalDatetime) {
+                this.FiscalDateTime = fiscal.FiscalDatetime;
+                this.DeviceDateTime = fiscal.FiscalDatetime;
+            }
         }
 
         /**

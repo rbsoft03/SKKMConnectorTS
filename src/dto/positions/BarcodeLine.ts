@@ -7,7 +7,7 @@ export class BarcodeLine extends Position {
     Type: string = "";
 
     /** Значение штрихкода */
-    Barcode: string = "";
+    Value: string = "";
 
     /** Значение штрихкода в Base64 */
     ValueBase64?: string;

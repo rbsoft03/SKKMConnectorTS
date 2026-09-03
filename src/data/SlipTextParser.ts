@@ -89,7 +89,7 @@ export class SlipTextParser {
         if (barcodeType !== undefined) {
             const barcode = new BarcodeLine();
             barcode.Type = BarcodeType[barcodeType] ?? "";
-            barcode.Barcode = line.trim();
+            barcode.Value = line.trim();
             if (parsedAlignment !== undefined) {
                 barcode.Alignment = PrintAlignment[parsedAlignment].toLowerCase();
             }

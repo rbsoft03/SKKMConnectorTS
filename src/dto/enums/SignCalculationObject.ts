@@ -70,7 +70,7 @@ export enum SignCalculationObject{
     /**Взносы на ОПС. */
     PensionContribution = 22,
 
-    /**Взносы на ОМС ИП. *
+    /**Взносы на ОМС ИП. */
     MedicalContributionIp = 23,
 
     /**Взносы на ОМС. */

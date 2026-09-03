@@ -103,3 +103,4 @@ export { FiscalizationReasonCode } from "./dto/enums/FiscalizationReasonCode.js"
 export { PrintLineType } from "./dto/enums/PrintLineType.js";
 export { PrintTemplateType } from "./dto/enums/PrintTemplateType.js";
 export { ServiceUserRole } from "./dto/enums/ServiceUserRole.js";
+export { FiscalOutputParameters } from "./dto/results/FiscalOutputParameters.js";

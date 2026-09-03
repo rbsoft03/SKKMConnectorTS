@@ -8,6 +8,8 @@ import { Vendor } from "../dto/positions/Vendor.js";
 import { Customer } from "../dto/Customer.js";
 import { Payments } from "../dto/Payments.js";
 import { Position } from "../dto/positions/Position.js";
+import { ShiftState } from "../dto/enums/ShiftState.js";
+import { Warnings } from "../dto/results/Warnings.js";
 import { CorrectionData } from "../dto/CorrectionData.js";
 import { Correction105Taxes } from "../dto/Correction105Taxes.js";
 import { CheckType } from "../dto/enums/CheckType.js";
@@ -50,6 +52,57 @@ export function WithCheckInput<TBase extends Constructor>(Base: TBase) {
 
         /** Номер фискального документа. */
         CheckNumber = 0;
+
+        /** Номер чека за смену. */
+        CheckNumberInShift = 0;
+
+        /** Регистрационный номер ККТ (РНМ). */
+        RnNumber = "";
+
+        /** Адрес сайта ФНС. */
+        FnsUrl = "";
+
+        /** Время на сервере ККМ. */
+        ServerDateTime = "";
+
+        /** Дата и время документа по часам ФН. */
+        FiscalDateTime = "";
+
+        /** Время ККТ. */
+        DeviceDateTime = "";
+
+        /** Состояние смены. */
+        CurrentShiftState: ShiftState | undefined = undefined;
+
+        /** Количество непереданных в ОФД документов. */
+        BacklogDocumentsCount = 0;
+
+        /** Номер первого непереданного документа. */
+        BacklogFirstDocumentNumber = 0;
+
+        /** Дата и время первого непереданного документа. */
+        BacklogFirstDocumentDateTime: string | undefined = undefined;
+
+        /** Срок действия ФН. */
+        FnValidityDate = "";
+
+        /** Остаток ресурса ФН в днях. */
+        FnDaysResources = 0;
+
+        /** ФН присутствует. */
+        IsFnPresent = false;
+
+        /** Фискальный режим. */
+        IsFiscal = false;
+
+        /** Предупреждения ФН из ответа. */
+        FnWarnings: Warnings | undefined = undefined;
+
+        /** Номер фискального накопителя. */
+        FnNumber = "";
+
+        /** Остаток наличных в денежном ящике. */
+        CashBalance = 0;
 
         /** Начало даты отбора списка отчётов (формат yyyy-MM-dd). */
         ShiftsFrom: string = toDateOnly(todayMinusDays(7));
