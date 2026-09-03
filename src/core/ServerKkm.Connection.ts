@@ -5,7 +5,7 @@ import { ServiceSettings } from "../dto/admin/ServiceSettings.js";
 import { ServiceUser } from "../dto/admin/ServiceUser.js";
 import { TemplateParameters } from "../dto/templates/TemplateParameters.js";
 import { CheckTemplateParameters } from "../dto/templates/CheckTemplateParameters.js";
-import { FiscalizationParameters } from "../dto/fiscalization/FiscalizationModels.js";
+import { FiscalizationParameters } from "../dto/fiscalization/FiscalizationParameters.js";
 
 /**Параметры подключения к серверу ККМ и данные кассира.*/
 export function WithConnection<TBase extends Constructor>(Base: TBase) {

@@ -5,7 +5,7 @@ import { FiscalResult } from "../dto/results/FiscalResult.js";
 import { CheckDocument } from "../dto/results/CheckDocument.js";
 import { ShiftListItem } from "../dto/results/ShiftListItem.js";
 import { PrintTemplate } from "../dto/templates/PrintTemplate.js";
-import { DeviceTaskInfo } from "../dto/operations/OperationModels.js";
+import { DeviceTaskInfo } from "../dto/operations/DeviceTaskInfo.js";
 
 
 function toCompactDateTime(iso: string | undefined): string {

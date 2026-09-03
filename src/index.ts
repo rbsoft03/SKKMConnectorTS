@@ -21,16 +21,20 @@ export { PrintAlignment } from "./dto/enums/PrintAlignment.js";
 export { PrintFont } from "./dto/enums/PrintFont.js";
 export { ShiftState } from "./dto/enums/ShiftState.js";
 export { TaxSystem } from "./dto/enums/TaxSystem.js";
-export { FiscalizationParameters, FiscalizationDocument } from "./dto/fiscalization/FiscalizationModels.js";
-export { MarkingVerifyResult, CodeMarkInfo } from "./dto/marking/MarkingVerifyModels.js";
-export {
-    OperationListItem,
-    OperationHistoryItem,
-    DeviceTaskInfo,
-    SenderInfo,
-    OperationKmRow,
-} from "./dto/operations/OperationModels.js";
-export { QueueItem, QueueTaskState, DocumentHistoryItem } from "./dto/queue/QueueModels.js";
+export { FiscalizationDocument } from "./dto/fiscalization/FiscalizationDocument.js";
+export { FiscalizationParameters } from "./dto/fiscalization/FiscalizationParameters.js";
+export { MarkingVerifyResult } from "./dto/marking/MarkingVerifyResult.js";
+export { CodeMarkInfo } from "./dto/marking/CodeMarkInfo.js";
+
+export { OperationListItem } from "./dto/operations/OperationListItem.js";
+export { OperationHistoryItem } from "./dto/operations/OperationHistoryItem.js";
+export { DeviceTaskInfo } from "./dto/operations/DeviceTaskInfo.js";
+export { SenderInfo } from "./dto/operations/SenderInfo.js";
+export { OperationKmRow } from "./dto/operations/OperationKmRow.js";
+
+export { QueueTaskState } from "./dto/queue/QueueTaskState.js";
+export { QueueItem } from "./dto/queue/QueueItem.js";
+export { DocumentHistoryItem } from "./dto/queue/DocumentHistoryItem.js";
 export { Agent } from "./dto/positions/Agent.js";
 export { BarcodeLine } from "./dto/positions/BarcodeLine.js";
 export { FiscalLine } from "./dto/positions/FiscalLine.js";

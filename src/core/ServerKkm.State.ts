@@ -15,18 +15,19 @@ import { ShiftListItem } from "../dto/results/ShiftListItem.js";
 import { UserToken } from "../dto/admin/UserToken.js";
 import { ServiceUser } from "../dto/admin/ServiceUser.js";
 import { ServiceSettings } from "../dto/admin/ServiceSettings.js";
-import { QueueItem, QueueTaskState } from "../dto/queue/QueueModels.js";
-import {
-    DeviceTaskInfo,
-    OperationHistoryItem,
-    OperationKmRow,
-    OperationListItem,
-} from "../dto/operations/OperationModels.js";
+import { QueueTaskState } from "../dto/queue/QueueTaskState.js";
+import { QueueItem } from "../dto/queue/QueueItem.js";
+
+import { DeviceTaskInfo } from "../dto/operations/DeviceTaskInfo.js";
+import { OperationHistoryItem } from "../dto/operations/OperationHistoryItem.js";
+import { OperationKmRow } from "../dto/operations/OperationKmRow.js";
+import { OperationListItem } from "../dto/operations/OperationListItem.js";
+
 import { PrintTemplate } from "../dto/templates/PrintTemplate.js";
 import { CheckTemplate } from "../dto/templates/CheckTemplate.js";
 import { CheckTemplateListItem } from "../dto/templates/CheckTemplateListItem.js";
-import { FiscalizationDocument } from "../dto/fiscalization/FiscalizationModels.js";
-import { MarkingVerifyResult } from "../dto/marking/MarkingVerifyModels.js";
+import { FiscalizationDocument } from "../dto/fiscalization/FiscalizationDocument.js";
+import { MarkingVerifyResult } from "../dto/marking/MarkingVerifyResult.js";
 
 /**Свойства-результаты последнего вызова.*/
 export function WithState<TBase extends Constructor>(Base: TBase) {

@@ -42,21 +42,22 @@ import { UserToken } from "../dto/admin/UserToken.js";
 import { ServiceUser } from "../dto/admin/ServiceUser.js";
 import { ServiceSettings } from "../dto/admin/ServiceSettings.js";
 import { DeviceSettings } from "../dto/admin/DeviceSettings.js";
-import { QueueItem, QueueTaskState } from "../dto/queue/QueueModels.js";
-import {
-    DeviceTaskInfo,
-    OperationHistoryItem,
-    OperationKmRow,
-    OperationListItem,
-} from "../dto/operations/OperationModels.js";
+import { QueueItem } from "../dto/queue/QueueItem.js";
+import { QueueTaskState } from "../dto/queue/QueueTaskState.js";
+import { DeviceTaskInfo } from "../dto/operations/DeviceTaskInfo.js";
+import { OperationHistoryItem } from "../dto/operations/OperationHistoryItem.js";
+import { OperationKmRow } from "../dto/operations/OperationKmRow.js";
+import { OperationListItem } from "../dto/operations/OperationListItem.js";
+
 import { PrintTemplate } from "../dto/templates/PrintTemplate.js";
 import { TemplateParameters } from "../dto/templates/TemplateParameters.js";
 import { CheckTemplate } from "../dto/templates/CheckTemplate.js";
 import { CheckTemplateListItem } from "../dto/templates/CheckTemplateListItem.js";
 import { CheckTemplateParameters } from "../dto/templates/CheckTemplateParameters.js";
-import { FiscalizationParameters, FiscalizationDocument } from "../dto/fiscalization/FiscalizationModels.js";
-import { FiscalizationRequest } from "../dto/fiscalization/FiscalizationModels.js";
-import { MarkingVerifyResult } from "../dto/marking/MarkingVerifyModels.js";
+import { FiscalizationDocument } from "../dto/fiscalization/FiscalizationDocument.js";
+import { FiscalizationParameters } from "../dto/fiscalization/FiscalizationParameters.js";
+import { FiscalizationRequest } from "../data/contracts/FiscalizationRequest.js";
+import { MarkingVerifyResult } from "../dto/marking/MarkingVerifyResult.js";
 
 /**
  * Минимальный набор членов, которые Api ожидает от TBase — практически
