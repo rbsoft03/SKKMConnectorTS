@@ -1,3 +1,4 @@
+import type { FiscalizationReasonCode } from "../../dto/enums/FiscalizationReasonCode.js";
 import { CheckbaseParameters } from "./CheckbaseParameters.js";
 
 /** Тело запроса фискализации ККТ. */
@@ -40,7 +41,7 @@ export class FiscalizationRequest extends CheckbaseParameters {
     SenderEmail?: string;
 
     /** Код причины перерегистрации. */
-    ReasonCode?: number;
+    ReasonCode?: FiscalizationReasonCode;
 
     /** Хост ИСМ. */
     IsmHost?: string;

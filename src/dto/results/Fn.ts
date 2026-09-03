@@ -1,6 +1,7 @@
 import { Ofd } from "./Ofd.js";
 import { Warnings } from "./Warnings.js";
 import { FnModes } from "./FnModes.js";
+import type { FiscalizationReasonCode } from "../enums/FiscalizationReasonCode.js";
 
 /** Описание фискального накопителя. */
 export class Fn {
@@ -24,7 +25,7 @@ export class Fn {
     TaxVariant: number = 0;
 
     /** Код причины перерегистрации / изменения параметров. */
-    ReasonCode: number = 0;
+    ReasonCode?: FiscalizationReasonCode;
 
     /** Версия ФФД. */
     FfdVersion?: string;
