@@ -1,8 +1,10 @@
+import type { BarcodeType } from "../enums/BarcodeType.js";
+
 /** Штрихкод в печатной форме. */
 export class PrintFormBarcode {
     
-    /** Тип штрихкода: UPCA, CODE39, EAN13, EAN8, UPCE, ITF, CODABAR, CODE93, CODE128, PDF417, CODE32, QR. */
-    Type?: string;
+    /** Тип штрихкода. */
+    Type?: BarcodeType;
 
     /** Значение штрихкода. */
     Value?: string;

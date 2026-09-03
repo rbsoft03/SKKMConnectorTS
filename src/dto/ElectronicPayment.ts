@@ -1,3 +1,5 @@
+import type { ElectronicPaymentMethod } from "./enums/ElectronicPaymentMethod.js";
+
 /** Сведения об оплате безналичными. */
 export class ElectronicPayment {
     
@@ -5,7 +7,7 @@ export class ElectronicPayment {
     Amount: number = 0;
 
     /** Признак способа оплаты безналичными. */
-    PaymentMethod?: number;
+    PaymentMethod?: ElectronicPaymentMethod;
 
     /** Идентификаторы безналичной оплаты. */
     Identifiers?: string;

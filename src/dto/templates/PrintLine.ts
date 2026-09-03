@@ -1,14 +1,17 @@
 import { PrintFormBarcode } from "../results/PrintFormBarcode.js";
 import { SeparatorLine } from "../positions/SeparatorLine.js";
 import { Picture } from "../results/Picture.js";
+import type { PrintLineType } from "../enums/PrintLineType.js";
+import type { PrintAlignment } from "../enums/PrintAlignment.js";
+import type { PrintFont } from "../enums/PrintFont.js";
 
 /** Строка печатного шаблона. */
 export class PrintLine {
     /**
-     * Тип строки: 0 — фискальная; 1 — текстовая; 2 — штрихкод; 3 — изображение; 4 — разделительная линия.
-     * Если не указано — 1 (текстовая).
+     * Тип строки.
+     * Если не указано — (текстовая).
      */
-    Type: number = 1;
+    Type?: PrintLineType;
 
     /** Ширина. Если не указано — 0 (по содержимому). */
     Width: number = 0;
@@ -26,13 +29,10 @@ export class PrintLine {
      * Выравнивание: 0 — по левому краю; 1 — по центру; 2 — по правому краю; 3 — по ширине.
      * Если не указано — слева.
      */
-    Alignment: number = 0;
+    Alignment?: PrintAlignment;
 
-    /**
-     * Шрифт: 0 — обычный; 1 — жирный; 2 — мелкий; 3 — средний; 4 — крупный; 5–9 — H1–H5.
-     * Если не указано — 0.
-     */
-    Font: number = 0;
+    /**Шрифт.*/
+    Font?: PrintFont;
 
     /** Перенос строк: false — строка обрезается; true — переносится. Если не указано — true. */
     Wrap: boolean = true;

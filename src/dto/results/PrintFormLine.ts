@@ -1,14 +1,14 @@
+import type { PrintAlignment } from "../enums/PrintAlignment.js";
+import type { PrintFont } from "../enums/PrintFont.js";
+import type { PrintLineType } from "../enums/PrintLineType.js";
 import { SeparatorLine } from "../positions/SeparatorLine.js";
 import type { Picture } from "./Picture.js";
 import { PrintFormBarcode } from "./PrintFormBarcode.js";
 
 /** Строка печатной формы. */
 export class PrintFormLine {
-    /**
-     * Тип строки: 0 — фискальная; 1 — текстовая; 2 — штрихкод; 3 — изображение; 4 — разделительная линия.
-     * Если не указано — 1 (текстовая).
-     */
-    Type: number = 1;
+    /** Тип строки. Если не указано — Text.*/
+    Type?: PrintLineType;
 
     /** Текст строки (левая часть). */
     Line?: string;
@@ -16,11 +16,11 @@ export class PrintFormLine {
     /** Текст строки (правая часть). */
     LineRight?: string;
 
-    /** Выравнивание: 0 — по левому краю; 1 — по центру; 2 — по правому краю; 3 — по ширине. */
-    Alignment: number = 0;
+    /**Выравнивание. Если не указано — Left. */
+    Alignment?: PrintAlignment;
 
-    /** Шрифт: 0 — обычный; 1 — жирный; 2 — мелкий; 3 — средний; 4 — крупный; 5–9 — H1–H5. */
-    Font: number = 0;
+    /** Шрифт. Если не указано — Normal. */
+    Font?: PrintFont;
 
     /** Признак, что шрифт задан явно во входящих данных или при создании строки. */
     IsFontSpecified: boolean = false;

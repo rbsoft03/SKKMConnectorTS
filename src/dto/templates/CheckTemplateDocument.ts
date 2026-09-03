@@ -9,7 +9,7 @@ import { UserAttribute } from "../UserAttribute.js";
 import { OperationalAttribute } from "../OperationalAttribute.js";
 import type { CheckTimeZone } from "../enums/CheckTimeZone.js";
 
-/** Документ шаблона чека. */
+/** Документ шаблона чека: тип чека, СНО, оплаты , позиции, покупатель, агент и прочие реквизиты — по аналогии с обычным чеком.*/
 export class CheckTemplateDocument {
     /** Тип чека. */
     PaymentType: number = 0;

@@ -1,3 +1,4 @@
+import type { PrintTemplateType } from "../enums/PrintTemplateType.js";
 import { TemplateItem } from "./TemplateItem.js";
 
 /** Параметры создания или изменения шаблона печати. */
@@ -8,8 +9,8 @@ export class TemplateParameters {
      */
     Name: string = "";
 
-    /** Тип шаблона: 0 — реклама; 1 — строки чека; 2 — шапка или подвал чека. */
-    Type: number = 0;
+    /** Тип шаблона. */
+    Type?: PrintTemplateType;
 
     /** Строки шаблона (текст, штрихкод, картинка, разделительная линия). */
     TemplateItems: TemplateItem[] = [];

@@ -92,7 +92,8 @@ export function WithCheckInput<TBase extends Constructor>(Base: TBase) {
         /** Часовая зона. */
         TimeZone: number | undefined = undefined;
 
-        /** Формирование чека только в электронном виде. */
+        /** Чек только в электронном виде (без печати на бумаге). */
+        /** true — не печатать; для обычной печати оставляйте false. */
         Electronically = false;
 
         /** Текст для печати перед товарной частью. */

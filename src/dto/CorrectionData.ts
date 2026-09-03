@@ -3,7 +3,7 @@ import { CorrectionTypes } from "./enums/CorrectionTypes.js";
 /** Данные коррекции. */
 export class CorrectionData {
 
-    /** Тип коррекции: 0 — самостоятельно, 1 — по предписанию. */
+    /** Тип коррекции.*/
     Type: CorrectionTypes = CorrectionTypes.Самостоятельно;
 
     /** Описание коррекции. */
