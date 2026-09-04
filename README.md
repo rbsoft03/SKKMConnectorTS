@@ -1,4 +1,4 @@
-# SKKM Connector TypeScript
+# Коннектора для Сервера ККМ (TS)
 
 Библиотека `skkmconnectorts` — программная обёртка над REST API **Сервера ККМ** для приложений на TypeScript/JavaScript (Node.js и браузер).
 
