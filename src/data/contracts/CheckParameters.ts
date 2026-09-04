@@ -12,6 +12,9 @@ import { ApiPosition } from "./ApiPosition.js";
 /**Параметры для печати чека или чека коррекции 1.2.*/
 export class CheckParameters extends CheckbaseParameters {
     
+    /** Общая сумма чека — сумма всех фискальных позиций. */
+    Sum?: number;
+    
     /** Тип чека. */
     PaymentType: number = 0;
 

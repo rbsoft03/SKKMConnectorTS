@@ -22,10 +22,10 @@ export class FiscalLine extends Position {
     Quantity: number = 1;
 
     /** Цена единицы товара с учетом скидок/наценок*/
-    Price: number = 0;
+    PriceWithDiscount: number = 0;
 
     /** Конечная сумма по позиции чека с учетом всех скидок/наценок*/
-    Sum: number = 0;
+    SumWithDiscount: number = 0;
 
     /** Сумма скидок и наценок*/
     DiscountSum: number = 0;

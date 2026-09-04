@@ -145,6 +145,7 @@ export function WithRequests<TBase extends Constructor<RequestsRequirements>>(Ba
             if (this.Agent !== undefined) check.AgentData = this.Agent;
             if (this.Vendor !== undefined) check.Vendor = this.Vendor;
             check.Positions = this.buildPositions();
+            check.Sum = this.calcPositionsSum();
             check.Payments = this.Payments;
             if (this.ElectronicPayments.length > 0) {
                 check.ElectronicPaymentInfo = this.ElectronicPayments;
@@ -204,6 +205,12 @@ export function WithRequests<TBase extends Constructor<RequestsRequirements>>(Ba
 
         buildPositions(): ApiPosition[] {
             return toApiPositions(this.Positions);
+        }
+
+        calcPositionsSum(): number {
+            return this.Positions
+                .filter((p): p is FiscalLine => p instanceof FiscalLine)
+                .reduce((total, line) => total + (line.SumWithDiscount ?? 0), 0);
         }
 
         /** Тело POST/PUT checkTemplate: позиции в обёртке FiscalString, как у печати чека. */
