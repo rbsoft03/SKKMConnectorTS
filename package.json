@@ -1,5 +1,5 @@
 {
-  "name": "skkmconnectorts",
+  "name": "RBSoftSkkm",
   "version": "1.0.0",
   "description": "TypeScript-коннектор к Серверу ККМ.",
   "type": "module",

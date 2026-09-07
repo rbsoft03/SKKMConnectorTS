@@ -1,4 +1,4 @@
-﻿export { ServerKkm } from "./core/ServerKkm.js";
+﻿export { SkkmConnector } from "./core/SkkmConnector.js";
 export { Cashier } from "./dto/Cashier.js";
 export { Correction105Taxes } from "./dto/Correction105Taxes.js";
 export { CorrectionData } from "./dto/CorrectionData.js";
@@ -25,13 +25,11 @@ export { FiscalizationDocument } from "./dto/fiscalization/FiscalizationDocument
 export { FiscalizationParameters } from "./dto/fiscalization/FiscalizationParameters.js";
 export { MarkingVerifyResult } from "./dto/marking/MarkingVerifyResult.js";
 export { CodeMarkInfo } from "./dto/marking/CodeMarkInfo.js";
-
 export { OperationListItem } from "./dto/operations/OperationListItem.js";
 export { OperationHistoryItem } from "./dto/operations/OperationHistoryItem.js";
 export { DeviceTaskInfo } from "./dto/operations/DeviceTaskInfo.js";
 export { SenderInfo } from "./dto/operations/SenderInfo.js";
 export { OperationKmRow } from "./dto/operations/OperationKmRow.js";
-
 export { QueueTaskState } from "./dto/queue/QueueTaskState.js";
 export { QueueItem } from "./dto/queue/QueueItem.js";
 export { DocumentHistoryItem } from "./dto/queue/DocumentHistoryItem.js";

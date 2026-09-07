@@ -36,4 +36,4 @@ class WithCheckInputApplied extends WithCheckInput(WithConnectionApplied) {}
 class WithInternalsApplied extends WithInternals(WithCheckInputApplied) {}
 class WithRequestsApplied extends WithRequests(WithInternalsApplied) {}
 
-export class ServerKkm extends WithApi(WithRequestsApplied) {}
+export class SkkmConnector extends WithApi(WithRequestsApplied) {}
