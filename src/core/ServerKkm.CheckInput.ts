@@ -140,7 +140,7 @@ export function WithCheckInput<TBase extends Constructor>(Base: TBase) {
         IsProcessed = false;
 
         /** Система налогообложения (СНО). */
-        TaxVariant: number = TaxSystem.ОСН;
+        TaxVariant: number = TaxSystem.OSN;
 
         /** Часовая зона. */
         TimeZone: number | undefined = undefined;

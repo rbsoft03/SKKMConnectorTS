@@ -218,7 +218,7 @@ export function WithApi<TBase extends Constructor<ApiRequirements>>(Base: TBase)
         NewRequest(): void {
             this.PaymentType = CheckType.Sale;
             this.IsProcessed = false;
-            this.TaxVariant = TaxSystem.ОСН;
+            this.TaxVariant = TaxSystem.OSN;
             this.Electronically = false;
             this.OperationOnline = false;
             this.TimeZone = undefined;
