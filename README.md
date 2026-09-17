@@ -78,7 +78,7 @@ src/
 | Свойство | Тип | Описание |
 | --- | --- | --- |
 | `PaymentType` | `CheckType` | Тип чека / задания:<br>Text - Текст<br>Sale - Продажа (приход)<br>SaleReturn - Возврат (возврат прихода)<br>Purchase - Покупка (расход)<br>PurchaseReturn - Возврат покупки (возврат расхода)<br>CorrectionSale - Чек коррекции прихода<br>CorrectionSaleReturn - Чек коррекции возврата прихода<br>CorrectionPurchase - Чек коррекции расхода<br>CorrectionPurchaseReturn - Чек коррекции возврата расхода<br>Slip - Слип<br>Fiscalization - Фискализация<br>OpenShift - Открытие смены<br>CloseShift - Z-отчёт<br>ReportX - X-отчёт<br>ReportSettlement - Отчёт о состоянии расчётов<br>CashOut - Выемка<br>CashIn - Внесение<br>OpenCashDrawer - Открытие денежного ящика<br>CopyFromFn - Копия из ФН<br>DocumentCopy - Дубликат документа |
-| `TaxVariant` | `TaxSystem` | Система налогообложения (СНО):<br>ОСН - Общий<br>УСН - Упрощенная Доход<br>УСНД_Р - Упрощенная Доход минус Расход<br>ЕНВД - Единый налог на вмененный доход<br>ЕСН - Единый сельскохозяйственный налог<br>ПСН - Патентная система налогообложения |
+| `TaxVariant` | `TaxSystem` | Система налогообложения (СНО):<br>ОСН - Общий<br>USN - Упрощенная Доход<br>USND_R - Упрощенная Доход минус Расход<br>ENVD - Единый налог на вмененный доход<br>ESN - Единый сельскохозяйственный налог<br>PSN - Патентная система налогообложения |
 | `Electronically` | `boolean` | Электронный чек (без печати на бумаге). |
 | `TextBefore` | `string` | Текст в шапке (до товарной части). |
 | `TextAfter` | `string` | Текст в подвале (после товарной части). |
@@ -499,7 +499,7 @@ if (kkm.Ok) {
 // 6. Новый запрос: очищает позиции, оплаты и результат прошлого вызова
 kkm.NewRequest();
 kkm.PaymentType = CheckType.Sale;
-kkm.TaxVariant = TaxSystem.ОСН;
+kkm.TaxVariant = TaxSystem.OSN;
 kkm.Electronically = false;
 
 kkm.Customer = new Customer();
